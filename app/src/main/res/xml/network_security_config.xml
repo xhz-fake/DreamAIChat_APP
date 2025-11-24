@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+        开发环境网络安全配置
+        允许使用 HTTP (cleartext) 通信，仅用于本地开发
+        
+        注意：生产环境应该移除此配置，只使用 HTTPS
+    -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- 
+        可选：更精细的控制，只允许特定域名使用 HTTP
+        取消下面的注释，并注释掉上面的 base-config，可以实现更安全的配置
+    -->
+    <!--
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+    -->
+</network-security-config>
+

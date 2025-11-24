@@ -1,3 +1,37 @@
 <resources>
-    <string name="app_name">DreamAI</string>
+    <string name="app_name">Dream</string>
+    <string name="app_subtitle">AI对话流创意工具</string>
+    
+    <!-- 登录界面 -->
+    <string name="login_title">登录</string>
+    <string name="login_account_hint">请输入手机号或邮箱</string>
+    <string name="login_password_hint">请输入密码</string>
+    <string name="login_button">登录</string>
+    <string name="register_button">注册账号</string>
+    <string name="social_login_divider">或使用以下方式登录</string>
+    <string name="wechat_login">微信登录</string>
+    <string name="apple_login">Apple登录</string>
+    <string name="login_agreement">登录即代表同意《用户协议》和《隐私政策》</string>
+    
+    <!-- 主界面 -->
+    <string name="menu">菜单</string>
+    <string name="settings">设置</string>
+    <string name="chat_tab">聊天</string>
+    <string name="history_tab">历史</string>
+    <string name="profile_tab">我的</string>
+    
+    <!-- 聊天界面 -->
+    <string name="chat_status_online">Dream · 在线</string>
+    <string name="chat_input_hint">与Dream对话…</string>
+    <string name="send">发送</string>
+    
+    <!-- 历史界面 -->
+    <string name="history_search_hint">搜索历史对话</string>
+    <string name="history_empty">还没有对话记录</string>
+    <string name="history_start_chat">开始对话</string>
+    
+    <!-- 个人中心 -->
+    <string name="profile_free_member">免费版</string>
+    <string name="profile_upgrade">升级</string>
+    <string name="profile_edit">编辑资料</string>
 </resources>

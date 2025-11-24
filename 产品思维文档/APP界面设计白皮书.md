@@ -19,6 +19,9 @@ MainActivity (主容器)
 ├── TemplateSelectionScreen (模板选择)
 ├── ModelRoutingScreen (模型路由)
 └── ConversationGraphScreen (对话图谱)
+
+- 下列每个界面中的a,b,c表示自上而下排布的模块
+- 界面名,图片名等尽可能使用中文直译英文便于理解并使用驼峰命名法
 ```
 
 ## 界面1: LoginScreen - 登录界面
@@ -28,8 +31,8 @@ MainActivity (主容器)
 **布局模块**：
 
 - a. **品牌展示区** (BrandSection)
-    - 应用Logo图标 + "即梦"文字
-    - 副标题："AI对话流创意工具"
+    - 应用Logo图标 + "Dream"文字
+    - 副标题："更强大的AI助手"
     - 品牌色：青绿色渐变背景
 - b. **登录表单区** (LoginForm)
     - b1: 手机号/邮箱输入框
@@ -43,10 +46,6 @@ MainActivity (主容器)
         - 点击验证并跳转(界面2: MainActivity)
     - b4: "注册账号"文字按钮
         - 点击跳转注册流程（简化版）
-- c. **第三方登录区** (SocialLogin)
-    - 分隔线："或使用以下方式登录"
-    - 微信登录按钮（图标 + "微信登录"）
-    - 苹果登录按钮（图标 + "Apple登录"）
 - d. **底部信息区** (Footer)
     - "登录即代表同意《用户协议》和《隐私政策》"
     - 可点击链接，弹出协议内容

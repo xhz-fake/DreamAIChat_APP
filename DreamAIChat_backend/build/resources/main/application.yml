@@ -1,0 +1,39 @@
+﻿server:
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:dreamaichat;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+
+security:
+  jwt:
+    # JWT 密钥必须至少 32 个字符（256 位），否则会报错
+    # 可以通过环境变量 DREAMAI_JWT_SECRET 设置，或直接修改这里的默认值
+    secret: ${DREAMAI_JWT_SECRET:DreamAIChatSuperSecretKeyForJWT2024Secure}
+    expire-hours: 168
+
+chat:
+  default-provider: deepseek
+  providers:
+    deepseek:
+      base-url: https://api.deepseek.com/v1/chat/completions
+      api-key: ${DEEPSEEK_API_KEY:DEMO-KEY}
+      model: deepseek-chat
+      temperature: 0.7
+    doubao:
+      base-url: https://ark.cn-beijing.volces.com/api/v3/chat/completions
+      api-key: ${DOUBAO_API_KEY:DEMO-KEY}
+      model: doubao-seed-1-6-vision-250815
+      temperature: 0.6

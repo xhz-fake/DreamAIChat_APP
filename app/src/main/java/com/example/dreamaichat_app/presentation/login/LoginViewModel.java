@@ -69,8 +69,22 @@ public class LoginViewModel extends BaseViewModel<Intent, LoginState> {
      * 处理注册
      */
     private void handleRegister(String account, String password, String username) {
-        // TODO: 实现注册逻辑
-        updateState(new LoginState.Error("注册功能暂未实现"));
+        updateState(new LoginState.Loading());
+        disposables.add(
+            loginUseCase.register(account, password, username)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    result -> {
+                        if (result.success) {
+                            updateState(new LoginState.Success(result.token, result.userId));
+                        } else {
+                            updateState(new LoginState.Error(result.errorMessage != null ? result.errorMessage : "注册失败"));
+                        }
+                    },
+                    error -> updateState(new LoginState.Error(error.getMessage() != null ? error.getMessage() : "网络错误"))
+                )
+        );
     }
     
     /**

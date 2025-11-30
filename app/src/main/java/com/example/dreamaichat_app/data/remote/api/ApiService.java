@@ -3,12 +3,16 @@ package com.example.dreamaichat_app.data.remote.api;
 import com.example.dreamaichat_app.data.remote.model.ApiResponse;
 import com.example.dreamaichat_app.data.remote.model.ChatRequest;
 import com.example.dreamaichat_app.data.remote.model.ChatResponse;
+import com.example.dreamaichat_app.data.remote.model.ConversationSummaryResponse;
 import com.example.dreamaichat_app.data.remote.model.LoginRequest;
 import com.example.dreamaichat_app.data.remote.model.LoginResponse;
+import com.example.dreamaichat_app.data.remote.model.RegisterRequest;
 import io.reactivex.rxjava3.core.Single;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Header;
+import java.util.List;
 
 /**
  * API 服务接口
@@ -26,21 +30,24 @@ import retrofit2.http.Header;
 public interface ApiService {
     
     /**
-     * 用户登录接口
-     * 
-     * @param request 登录请求，包含账号和密码
-     * @return 返回一个 Single<ApiResponse<LoginResponse>>
-     *         Single 是 RxJava 的一个类型，表示只会发出一个值或错误
-     *         ApiResponse 是统一的响应格式，包含 code、message、data
-     *         LoginResponse 是登录成功后的数据，包含 userId、token 等
-     * 
-     * 实际请求：
-     * POST https://api.example.com/auth/login
-     * Content-Type: application/json
-     * Body: {"account":"user@example.com","password":"123456"}
+     * 用户注册接口
      */
-    @POST("auth/login")
+    @POST("api/auth/register")
+    Single<ApiResponse<LoginResponse>> register(@Body RegisterRequest request);
+
+    /**
+     * 用户登录接口
+     */
+    @POST("api/auth/login")
     Single<ApiResponse<LoginResponse>> login(@Body LoginRequest request);
+
+    /**
+     * 获取当前用户的会话列表
+     */
+    @GET("api/chat/conversations")
+    Single<ApiResponse<List<ConversationSummaryResponse>>> conversations(
+        @Header("Authorization") String token
+    );
     
     /**
      * 发送聊天消息接口
@@ -56,7 +63,7 @@ public interface ApiService {
      * Content-Type: application/json
      * Body: {"message":"你好","conversationId":"123","model":"gpt-4"}
      */
-    @POST("chat/send")
+    @POST("api/chat/send")
     Single<ApiResponse<ChatResponse>> sendMessage(
         @Header("Authorization") String token,
         @Body ChatRequest request

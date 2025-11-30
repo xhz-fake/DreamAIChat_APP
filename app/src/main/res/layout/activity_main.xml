@@ -8,41 +8,41 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/background">
 
-        <!-- 顶部应用栏 -->
-        <com.google.android.material.appbar.AppBarLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            style="@style/Widget.MaterialComponents.Toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/surface"
+            app:contentInsetStartWithNavigation="16dp"
+            app:title="Dream"
+            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:navigationIcon="@android:drawable/ic_menu_view" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
 
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <!-- 内容区域 -->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:paddingBottom="8dp" />
 
-        <!-- 底部导航栏 -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/surface"
+            app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_navigation" />
 
     </LinearLayout>
 
-    <!-- 侧边栏 -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="280dp"

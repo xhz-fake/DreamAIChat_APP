@@ -107,10 +107,10 @@ private static final String BASE_URL = "https://api.example.com/";
 private static final String BASE_URL = "https://test-api.example.com/";
 
 // 本地开发（模拟器）
-private static final String BASE_URL = "http://10.0.2.2:8080/";
+private static final String BASE_URL = "http://10.0.2.2:8081/";
 
 // 本地开发（真机，需要替换为你的电脑 IP）
-private static final String BASE_URL = "http://192.168.1.100:8080/";
+private static final String BASE_URL = "http://192.168.1.100:8081/";
 ```
 
 **错误示例**：
@@ -183,7 +183,7 @@ D/OkHttp: <-- 404 Not Found
 
 ```java
 // 模拟器访问本地服务器
-private static final String BASE_URL = "http://10.0.2.2:8080/";
+private static final String BASE_URL = "http://10.0.2.2:8081/";
 ```
 
 **为什么是 10.0.2.2**：
@@ -201,7 +201,7 @@ private static final String BASE_URL = "http://10.0.2.2:8080/";
 
 2. **配置地址**
    ```java
-   private static final String BASE_URL = "http://192.168.1.100:8080/";
+   private static final String BASE_URL = "http://192.168.1.100:8081/";
    ```
    将 `192.168.1.100` 替换为你的实际 IP 地址
 

@@ -41,7 +41,7 @@ public class SendMessageUseCase {
         return messageRepository.insertMessage(userMessage)
             .andThen(
                 // 调用API发送消息
-                createChatRequest(content, token)
+                createChatRequest(conversationId, content)
                     .flatMap(request -> apiService.sendMessage("Bearer " + token, request))
                     .flatMap(apiResponse -> {
                         if (!apiResponse.success || apiResponse.data == null) {
@@ -54,9 +54,9 @@ public class SendMessageUseCase {
                         
                         // 保存AI回复
                         MessageEntity aiMessage = new MessageEntity();
-                        aiMessage.conversationId = conversationId;
+                        aiMessage.conversationId = response.conversationId != null ? response.conversationId : conversationId;
                         aiMessage.role = "assistant";
-                        aiMessage.content = response.message != null ? response.message : "";
+                        aiMessage.content = response.replyMessage != null ? response.replyMessage : "";
                         aiMessage.status = "success";
                         aiMessage.createdAt = System.currentTimeMillis();
                         aiMessage.updatedAt = System.currentTimeMillis();
@@ -77,10 +77,10 @@ public class SendMessageUseCase {
             .subscribeOn(Schedulers.io());
     }
     
-    private Single<ChatRequest> createChatRequest(String content, String token) {
+    private Single<ChatRequest> createChatRequest(Long conversationId, String content) {
         ChatRequest request = new ChatRequest();
         request.message = content;
-        request.conversationId = 1L; // TODO: 使用实际的会话ID
+        request.conversationId = conversationId;
         request.model = "gpt-4"; // TODO: 使用用户选择的模型
         return Single.just(request);
     }

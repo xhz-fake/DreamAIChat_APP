@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dreamaichat_app.R;
+import com.example.dreamaichat_app.data.local.SessionManager;
 import com.example.dreamaichat_app.presentation.login.LoginIntent;
 import com.example.dreamaichat_app.presentation.login.LoginState;
 import com.example.dreamaichat_app.presentation.login.LoginViewModel;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     
     private LoginViewModel viewModel;
     private Disposable stateDisposable;
+    private SessionManager sessionManager;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     private void initViewModel() {
         LoginViewModelFactory factory = new LoginViewModelFactory(getApplication());
         viewModel = new ViewModelProvider(this, factory).get(LoginViewModel.class);
+        sessionManager = new SessionManager(this);
     }
     
     private void setupListeners() {
@@ -126,6 +129,9 @@ public class LoginActivity extends AppCompatActivity {
     }
     
     private void handleLoginSuccess(String token, Long userId) {
+        if (token != null && userId != null) {
+            sessionManager.saveSession(token, userId);
+        }
         // 跳转到主界面
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -1,0 +1,25 @@
+# ============================================
+# 本地开发环境配置
+# ⚠️ 此文件包含敏感信息，不要提交到 Git！
+# ============================================
+# 
+# 使用方法：
+# 1. 将你的 API Key 填写在下面
+# 2. 启动后端时使用：./gradlew bootRun --args='--spring.profiles.active=local'
+# 3. 或者使用启动脚本：start-backend-local.ps1
+# ============================================
+
+chat:
+  providers:
+    deepseek:
+      # 你的 DeepSeek API Key（格式：sk-xxxxx）
+      # 可以直接写在这里，或者使用环境变量 ${DEEPSEEK_API_KEY:你的密钥}
+      api-key: sk-1ecd58720b234f848214a8fe6ecb4848
+    doubao:
+      # 你的豆包 API Key
+      # 可以直接写在这里，或者使用环境变量 ${DOUBAO_API_KEY:你的密钥}
+      api-key: 69f1ba48-85f6-4ae9-ac41-86a25da50938
+      # 模型名称：必须与火山引擎控制台中的模型名称完全一致
+      # 如果模型名称错误，API 调用会失败（通常返回 400 或 404 错误）
+      model: doubao-seed-1-6-vision-250815
+

@@ -3,14 +3,20 @@ package com.example.dreamaichat_app.domain.usecase;
 import android.content.Context;
 
 import com.example.dreamaichat_app.data.entity.UserEntity;
+import com.example.dreamaichat_app.data.remote.RetrofitClient;
 import com.example.dreamaichat_app.data.remote.api.ApiService;
+import com.example.dreamaichat_app.data.remote.model.ApiResponse;
 import com.example.dreamaichat_app.data.remote.model.LoginRequest;
 import com.example.dreamaichat_app.data.remote.model.LoginResponse;
-import com.example.dreamaichat_app.data.remote.RetrofitClient;
+import com.example.dreamaichat_app.data.remote.model.RegisterRequest;
 import com.example.dreamaichat_app.data.repository.UserRepository;
+import com.google.gson.Gson;
+
+import java.io.IOException;
 
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import retrofit2.HttpException;
 
 /**
  * 登录用例
@@ -38,81 +44,69 @@ public class LoginUseCase {
      * @return Single<LoginResult> 登录结果
      */
     public Single<LoginResult> execute(String account, String password) {
-        // 创建登录请求
         LoginRequest request = new LoginRequest();
         request.account = account;
         request.password = password;
-        
-        // 调用 API，如果失败则使用模拟登录
-        return apiService.login(request)
+        return performAuthCall(apiService.login(request), account, null);
+    }
+
+    /**
+     * 注册并返回登录态
+     */
+    public Single<LoginResult> register(String account, String password, String username) {
+        RegisterRequest request = new RegisterRequest();
+        request.account = account;
+        request.password = password;
+        request.username = username;
+        return performAuthCall(apiService.register(request), account, username);
+    }
+
+    private Single<LoginResult> performAuthCall(Single<ApiResponse<LoginResponse>> single,
+                                               String account,
+                                               String usernameFallback) {
+        return single
             .subscribeOn(Schedulers.io())
             .flatMap(apiResponse -> {
                 if (apiResponse.success && apiResponse.data != null) {
-                    LoginResponse response = apiResponse.data;
-                    // 登录成功，保存用户信息
-                    UserEntity user = new UserEntity();
-                    user.account = account;
-                    user.username = response.username != null ? response.username : account;
-                    user.token = response.token;
-                    user.tokenExpireTime = response.expireTime;
-                    user.memberType = response.memberType != null ? response.memberType : "free";
-                    user.createdAt = System.currentTimeMillis();
-                    user.updatedAt = System.currentTimeMillis();
-                    
-                    // 保存到数据库
-                    return userRepository.insertOrUpdateUserWithId(user)
-                        .map(userId -> new LoginResult(true, response.token, userId, null));
-                } else {
-                    // 登录失败
-                    return Single.just(new LoginResult(false, null, null, apiResponse.message != null ? apiResponse.message : "登录失败"));
+                    return saveUserAndBuildResult(account, usernameFallback, apiResponse.data);
                 }
+                String msg = apiResponse.message != null ? apiResponse.message : "请求失败";
+                return Single.just(new LoginResult(false, null, null, msg));
             })
-            .onErrorResumeNext(error -> {
-                // 网络错误时，使用模拟登录（仅用于开发测试）
-                return simulateLogin(account, password);
-            });
+            .onErrorReturn(error -> new LoginResult(false, null, null, extractErrorMessage(error)));
     }
-    
-    /**
-     * 模拟登录（用于开发测试，当没有后端服务器时）
-     * 
-     * @param account 账号
-     * @param password 密码
-     * @return Single<LoginResult> 登录结果
-     */
-    private Single<LoginResult> simulateLogin(String account, String password) {
-        // 简单的模拟验证：账号和密码都不为空即可登录
-        if (account == null || account.trim().isEmpty() || 
-            password == null || password.trim().isEmpty()) {
-            // 账号或密码为空，直接返回失败
-            return Single.just(new LoginResult(false, null, null, "账号或密码不能为空"))
-                .subscribeOn(Schedulers.io());
-        }
-        
-        // 创建模拟用户信息
+
+    private Single<LoginResult> saveUserAndBuildResult(String account,
+                                                       String usernameFallback,
+                                                       LoginResponse response) {
         UserEntity user = new UserEntity();
         user.account = account;
-        user.username = account; // 使用账号作为用户名
-        user.token = "mock_token_" + System.currentTimeMillis(); // 模拟 token
-        user.tokenExpireTime = System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L); // 7天后过期
-        user.memberType = "free";
+        user.username = response.username != null ? response.username : (usernameFallback != null ? usernameFallback : account);
+        user.token = response.token;
+        user.tokenExpireTime = response.expireTime;
+        user.memberType = response.memberType != null ? response.memberType : "free";
         user.createdAt = System.currentTimeMillis();
         user.updatedAt = System.currentTimeMillis();
-        
-        // 保存到数据库，添加错误处理
         return userRepository.insertOrUpdateUserWithId(user)
-            .map(userId -> {
-                if (userId != null && userId > 0) {
-                    return new LoginResult(true, user.token, userId, null);
-                } else {
-                    return new LoginResult(false, null, null, "保存用户信息失败");
+            .map(userId -> new LoginResult(true, response.token, userId, null));
+    }
+
+    private String extractErrorMessage(Throwable error) {
+        if (error instanceof HttpException) {
+            HttpException http = (HttpException) error;
+            try {
+                if (http.response() != null && http.response().errorBody() != null) {
+                    String body = http.response().errorBody().string();
+                    ApiResponse<?> apiError = new Gson().fromJson(body, ApiResponse.class);
+                    if (apiError != null && apiError.message != null) {
+                        return apiError.message;
+                    }
                 }
-            })
-            .onErrorReturn(error -> {
-                // 如果数据库操作失败，仍然返回成功（使用临时 userId）
-                return new LoginResult(true, user.token, 1L, null);
-            })
-            .subscribeOn(Schedulers.io());
+            } catch (IOException ignored) {
+            }
+            return "服务器返回错误(" + http.code() + ")";
+        }
+        return error.getMessage() != null ? error.getMessage() : "网络错误";
     }
     
     /**

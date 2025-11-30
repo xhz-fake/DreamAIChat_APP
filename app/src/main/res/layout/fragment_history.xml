@@ -1,60 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:padding="12dp">
 
-    <!-- 搜索栏 -->
     <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
+        android:id="@+id/search_input_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/history_search_hint"
-        android:padding="16dp">
+        app:endIconMode="clear_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
             android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- 历史列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_history"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input_layout" />
 
-    <!-- 空状态 -->
+    <ProgressBar
+        android:id="@+id/progress_history"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/search_input_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"/>
+
     <LinearLayout
         android:id="@+id/empty_state"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:gravity="center"
-        android:visibility="gone">
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input_layout">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📝"
-            android:textSize="64sp"
-            android:layout_marginBottom="16dp" />
+            android:text="😔"
+            android:textSize="64sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:text="@string/history_empty"
-            android:textSize="16sp"
             android:textColor="@color/text_secondary"
-            android:layout_marginBottom="16dp" />
+            android:textSize="16sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_start_chat"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/history_start_chat" />
     </LinearLayout>
-</LinearLayout>
 
+</androidx.constraintlayout.widget.ConstraintLayout>

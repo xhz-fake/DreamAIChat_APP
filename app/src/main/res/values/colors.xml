@@ -1,28 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <!-- 品牌色：青绿色渐变 -->
+
     <color name="primary">#00C9A7</color>
     <color name="primary_dark">#00A68F</color>
     <color name="primary_light">#4DD4B8</color>
-    
-    <!-- 背景色 -->
+
     <color name="background">#FAFAFA</color>
     <color name="surface">#FFFFFF</color>
-    
-    <!-- 文本色 -->
+
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#BDBDBD</color>
-    
-    <!-- 消息气泡色 -->
-    <color name="message_user">#00C9A7</color>
-    <color name="message_ai">#E0E0E0</color>
+
+    <color name="chat_bubble_user">#D5F5F0</color>
+    <color name="chat_bubble_ai">#F1F3F4</color>
     <color name="message_system">#80FFFFFF</color>
-    
-    <!-- 状态色 -->
+
+    <color name="divider">#1A000000</color>
+
     <color name="success">#4CAF50</color>
     <color name="error">#F44336</color>
     <color name="warning">#FF9800</color>

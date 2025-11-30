@@ -25,13 +25,13 @@ public class RetrofitClient {
      * 3. 地址末尾必须有斜杠 "/"
      * 
      * 示例：
-     * - 本地开发：http://localhost:8080/ 或 http://10.0.2.2:8080/ (Android模拟器)
+     * - 本地开发：http://localhost:8081/ 或 http://10.0.2.2:8081/ (Android模拟器)
      * - 测试服务器：https://test-api.example.com/
      * - 生产服务器：https://api.example.com/
      * 
      * 注意：如果你还没有后端服务器，可以先使用模拟数据，或者使用公共测试 API
      */
-    private static final String BASE_URL = "http://10.0.2.2:8080/"; // TODO: 替换为你的实际API地址
+    private static final String BASE_URL = "http://10.0.2.2:8081/";
     
     private static RetrofitClient instance;
     private final ApiService apiService;
@@ -47,11 +47,12 @@ public class RetrofitClient {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         
         // 创建 OkHttpClient，这是 Retrofit 底层使用的 HTTP 客户端
+        // 注意：readTimeout 设置为 120 秒，因为 AI 模型生成复杂回答可能需要较长时间
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)  // 添加日志拦截器
-            .connectTimeout(5, TimeUnit.SECONDS)  // 连接超时时间：5秒（开发环境快速失败，触发模拟登录）
-            .readTimeout(5, TimeUnit.SECONDS)     // 读取超时时间：5秒
-            .writeTimeout(5, TimeUnit.SECONDS)    // 写入超时时间：5秒
+            .addInterceptor(loggingInterceptor)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)  // 增加到 120 秒，支持复杂问题的长响应
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build();
         
         // 创建 Retrofit 实例

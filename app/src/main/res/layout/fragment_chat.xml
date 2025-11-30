@@ -1,159 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@color/background"
+    android:padding="16dp"
+    tools:context=".ui.chat.ChatFragment">
 
-    <!-- 对话状态栏 -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/model_header"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
-        android:background="@color/surface"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <View
+            android:id="@+id/modelBadge"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_model_tag" />
 
         <TextView
-            android:id="@+id/tv_chat_status"
+            android:id="@+id/tvCurrentModel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/chat_status_online"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary" />
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/text_primary"
+            android:text="DeepSeek · 精准" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_model_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:text="GPT-4"
-            android:textSize="12sp"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
-    </LinearLayout>
-
-    <!-- 消息列表区域 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_messages"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp"
-        android:clipToPadding="false" />
-
-    <!-- 快捷指令栏 -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:paddingVertical="8dp"
-        android:paddingHorizontal="12dp"
-        android:background="@color/surface">
-
-        <LinearLayout
-            android:id="@+id/ll_quick_actions"
+            android:id="@+id/btnModelSwitch"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:text="@string/model_picker_title" />
+    </LinearLayout>
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_explain_code"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="解释代码"
-                android:layout_marginEnd="8dp"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_summarize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="总结内容"
-                android:layout_marginEnd="8dp"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_translate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="翻译成英文"
-                android:layout_marginEnd="8dp"
-                style="@style/Widget.MaterialComponents.Chip.Choice" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <!-- 输入工具栏 -->
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/generatingBar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="8dp"
-        android:background="@color/surface"
-        android:gravity="center_vertical">
+        android:background="@drawable/bg_system_message"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/model_header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
 
-        <!-- 附件按钮 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_attach"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="📎"
-            android:textSize="20sp"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+        <ProgressBar
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:indeterminate="true" />
 
-        <!-- 模板按钮 -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_template"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:padding="0dp"
-            android:text="📝"
-            android:textSize="20sp"
-            style="@style/Widget.MaterialComponents.Button.TextButton" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/chat_generating"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
 
-        <!-- 文本输入框 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMessages"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintTop_toBottomOf="@id/generatingBar"
+        app:layout_constraintBottom_toTopOf="@id/chipGroup"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_message_user" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        app:singleLine="false"
+        app:layout_constraintBottom_toTopOf="@id/input_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/input_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/chat_input_hint"
-            app:boxBackgroundMode="outline"
-            app:boxCornerRadiusTopStart="24dp"
-            app:boxCornerRadiusTopEnd="24dp"
-            app:boxCornerRadiusBottomStart="24dp"
-            app:boxCornerRadiusBottomEnd="24dp"
-            android:layout_marginHorizontal="8dp">
+            android:hint="@string/chat_input_hint">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_message_input"
+                android:id="@+id/etMessageInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="5"
                 android:minLines="1"
-                android:inputType="textMultiLine"
-                android:gravity="top|start" />
+                android:inputType="textCapSentences|textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- 发送按钮 -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/fab_send"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:text="➤"
-            android:textSize="20sp"
-            android:backgroundTint="@color/primary"
-            style="@style/Widget.MaterialComponents.Button" />
+            android:id="@+id/btnSend"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/send" />
     </LinearLayout>
-</LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

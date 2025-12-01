@@ -1,17 +1,28 @@
 package com.example.dreamaichat_app.ui.chat.adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.dreamaichat_app.databinding.ItemMessageAiBinding;
 import com.example.dreamaichat_app.databinding.ItemMessageSystemBinding;
 import com.example.dreamaichat_app.databinding.ItemMessageUserBinding;
+import com.example.dreamaichat_app.model.ChatAttachment;
 import com.example.dreamaichat_app.model.ChatMessage;
 import com.example.dreamaichat_app.model.ChatRole;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -86,6 +97,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void bind(ChatMessage message) {
             binding.tvContent.setText(message.getContent());
             binding.messageStatus.setText(message.getStatus().name());
+            bindAttachments(binding.attachmentContainer, message);
         }
     }
 
@@ -99,6 +111,13 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void bind(ChatMessage message) {
             binding.tvContent.setText(message.getContent());
+            bindAttachments(binding.attachmentContainer, message);
+            if (TextUtils.isEmpty(message.getContent())) {
+                binding.btnCopy.setVisibility(View.GONE);
+            } else {
+                binding.btnCopy.setVisibility(View.VISIBLE);
+                binding.btnCopy.setOnClickListener(v -> copyToClipboard(v, message.getContent()));
+            }
         }
     }
 
@@ -113,5 +132,61 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         void bind(ChatMessage message) {
             binding.tvSystemMessage.setText(message.getContent());
         }
+    }
+
+    private void bindAttachments(LinearLayout container, ChatMessage message) {
+        if (container == null) {
+            return;
+        }
+        container.removeAllViews();
+        List<ChatAttachment> attachments = message.getAttachments();
+        if (attachments == null || attachments.isEmpty()) {
+            container.setVisibility(View.GONE);
+            return;
+        }
+        for (ChatAttachment attachment : attachments) {
+            if (attachment == null || !attachment.isImage()) {
+                continue;
+            }
+            Object source = null;
+            if (attachment.getLocalPath() != null) {
+                source = new File(attachment.getLocalPath());
+            } else if (attachment.getRemoteUrl() != null) {
+                source = attachment.getRemoteUrl();
+            }
+            if (source == null) {
+                continue;
+            }
+            ImageView imageView = new ImageView(container.getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.bottomMargin = dpToPx(container, 8);
+            imageView.setLayoutParams(params);
+            imageView.setAdjustViewBounds(true);
+            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            Glide.with(imageView)
+                .load(source)
+                .fitCenter()
+                .into(imageView);
+            container.addView(imageView);
+        }
+        container.setVisibility(container.getChildCount() > 0 ? View.VISIBLE : View.GONE);
+    }
+
+    private void copyToClipboard(View view, String content) {
+        Context context = view.getContext();
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            ClipData clip = ClipData.newPlainText("ai-reply", content);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private int dpToPx(View view, int dp) {
+        float density = view.getResources().getDisplayMetrics().density;
+        return (int) (dp * density);
     }
 }

@@ -11,14 +11,14 @@ public class ChatMessage {
     private final ChatRole role;
     private final String content;
     private final long timestamp;
-    private final List<String> attachments;
+    private final List<ChatAttachment> attachments;
     private MessageStatus status;
 
     public ChatMessage(long id,
                        ChatRole role,
                        String content,
                        long timestamp,
-                       List<String> attachments,
+                       List<ChatAttachment> attachments,
                        MessageStatus status) {
         this.id = id;
         this.role = role;
@@ -44,7 +44,7 @@ public class ChatMessage {
         return timestamp;
     }
 
-    public List<String> getAttachments() {
+    public List<ChatAttachment> getAttachments() {
         return attachments;
     }
 

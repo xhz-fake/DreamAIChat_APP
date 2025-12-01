@@ -101,11 +101,11 @@ public class MainActivity extends AppCompatActivity {
     private void handleDrawerAction(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_templates) {
-            Toast.makeText(this, "妯℃澘涓績寮€鍙戜腑", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_template_center), Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_routing) {
-            Toast.makeText(this, "妯″瀷璺敱寮€鍙戜腑", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_routing_dev), Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_graph) {
-            Toast.makeText(this, "瀵硅瘽鍥捐氨寮€鍙戜腑", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_graph_dev), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_new_chat) {
             chatViewModel.startNewChat();
-            Toast.makeText(this, "宸插垱寤烘柊瀵硅瘽", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.toast_new_chat), Toast.LENGTH_SHORT).show();
             showFragment(chatFragment);
             return true;
         } else if (item.getItemId() == R.id.action_settings) {

@@ -1,9 +1,16 @@
 package com.example.dreamaichat_app.ui.chat;
 
 import android.app.Application;
+import android.content.ContentResolver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -19,18 +26,29 @@ import com.example.dreamaichat_app.data.repository.ConversationRepository;
 import com.example.dreamaichat_app.data.entity.MessageEntity;
 import com.example.dreamaichat_app.data.entity.ConversationEntity;
 import com.example.dreamaichat_app.domain.usecase.GetMessagesUseCase;
+import com.example.dreamaichat_app.model.ChatAttachment;
 import com.example.dreamaichat_app.model.ChatMessage;
 import com.example.dreamaichat_app.model.ChatRole;
 import com.example.dreamaichat_app.model.MessageStatus;
 import com.example.dreamaichat_app.model.ModelOption;
 import com.example.dreamaichat_app.model.QuickAction;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -38,6 +56,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class ChatViewModel extends AndroidViewModel {
 
     private static final AtomicLong ID_GENERATOR = new AtomicLong(1000);
+    private static final List<ChatAttachment> NO_ATTACHMENTS = Collections.emptyList();
+    private static final int IMAGE_MAX_DIMENSION = 1280;
 
     private final MutableLiveData<List<ChatMessage>> messages = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<ModelOption> currentModel = new MutableLiveData<>();
@@ -50,6 +70,7 @@ public class ChatViewModel extends AndroidViewModel {
     private final MessageRepository messageRepository;
     private final ConversationRepository conversationRepository;
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private final Gson gson = new Gson();
     private final List<ModelOption> availableModels;
 
     private long activeConversationId = -1L;
@@ -103,7 +124,7 @@ public class ChatViewModel extends AndroidViewModel {
             ChatRole.SYSTEM,
             "新的对话空间已准备就绪，任何灵感都可以立即发出。",
             System.currentTimeMillis(),
-            Collections.emptyList(),
+            NO_ATTACHMENTS,
             MessageStatus.SUCCESS
         ));
         messages.setValue(seed);
@@ -150,13 +171,15 @@ public class ChatViewModel extends AndroidViewModel {
                             } catch (IllegalArgumentException e) {
                                 status = MessageStatus.SUCCESS;
                             }
+
+                            List<ChatAttachment> attachments = buildAttachmentsFromEntity(entity);
                             
                             ChatMessage chatMessage = new ChatMessage(
                                 entity.id != null ? entity.id : nextId(),
                                 role,
                                 entity.content != null ? entity.content : "",
                                 entity.createdAt != null ? entity.createdAt : System.currentTimeMillis(),
-                                Collections.emptyList(),
+                                attachments,
                                 status
                             );
                             chatMessages.add(chatMessage);
@@ -169,7 +192,7 @@ public class ChatViewModel extends AndroidViewModel {
                                 ChatRole.SYSTEM,
                                 "会话已加载，可以继续对话。",
                                 System.currentTimeMillis(),
-                                Collections.emptyList(),
+                                NO_ATTACHMENTS,
                                 MessageStatus.SUCCESS
                             ));
                         }
@@ -193,26 +216,59 @@ public class ChatViewModel extends AndroidViewModel {
     }
 
     public void sendMessage(String text) {
+        sendMessage(text, Collections.emptyList());
+    }
+
+    public void sendMessage(String text, @Nullable List<Uri> attachmentUris) {
+        String trimmed = text != null ? text.trim() : "";
+        if ((attachmentUris == null || attachmentUris.isEmpty()) && TextUtils.isEmpty(trimmed)) {
+            toastEvent.postValue("请输入内容或添加图片");
+            return;
+        }
+        if (attachmentUris == null || attachmentUris.isEmpty()) {
+            dispatchMessage(trimmed, Collections.emptyList());
+            return;
+        }
+        if (sessionManager.getToken() == null) {
+            toastEvent.postValue("登录状态已失效，请重新登录");
+            return;
+        }
+        disposables.add(
+            Single.fromCallable(() -> prepareImagePayloads(attachmentUris))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                    payloads -> dispatchMessage(trimmed, payloads),
+                    throwable -> toastEvent.setValue("图片处理失败：" +
+                        (throwable.getMessage() != null ? throwable.getMessage() : "未知错误"))
+                )
+        );
+    }
+
+    private void dispatchMessage(String text, List<ImagePayload> imagePayloads) {
         String token = sessionManager.getToken();
         if (token == null) {
             toastEvent.postValue("登录状态已失效，请重新登录");
             return;
         }
-        if (TextUtils.isEmpty(text)) {
-            return;
-        }
-        String payload = text.trim();
-        if (payload.isEmpty()) {
+
+        String payload = text != null ? text.trim() : "";
+        boolean hasAttachment = imagePayloads != null && !imagePayloads.isEmpty();
+        if (!hasAttachment && payload.isEmpty()) {
             return;
         }
 
         List<ChatMessage> currentList = new ArrayList<>(ensureMessageList());
+        List<ChatAttachment> attachments = hasAttachment
+            ? buildChatAttachments(imagePayloads)
+            : NO_ATTACHMENTS;
+        String displayContent = payload.isEmpty() && hasAttachment ? "[图片]" : payload;
         ChatMessage pending = new ChatMessage(
             nextId(),
             ChatRole.USER,
-            payload,
+            displayContent,
             System.currentTimeMillis(),
-            Collections.emptyList(),
+            attachments,
             MessageStatus.SENDING
         );
         currentList.add(pending);
@@ -227,6 +283,15 @@ public class ChatViewModel extends AndroidViewModel {
         ModelOption option = currentModel.getValue();
         if (option != null) {
             request.model = option.getId();
+        }
+        if (hasAttachment) {
+            request.images = new ArrayList<>();
+            for (ImagePayload imagePayload : imagePayloads) {
+                ChatRequest.ImagePayload dto = new ChatRequest.ImagePayload();
+                dto.base64 = imagePayload.base64;
+                dto.mime = imagePayload.mimeType;
+                request.images.add(dto);
+            }
         }
 
         disposables.add(
@@ -258,7 +323,7 @@ public class ChatViewModel extends AndroidViewModel {
             ChatRole.ASSISTANT,
             data.replyMessage != null ? data.replyMessage : "",
             System.currentTimeMillis(),
-            Collections.emptyList(),
+            NO_ATTACHMENTS,
             MessageStatus.SUCCESS
         );
         currentList.add(aiMessage);
@@ -357,6 +422,25 @@ public class ChatViewModel extends AndroidViewModel {
         );
     }
 
+    private List<ImagePayload> prepareImagePayloads(List<Uri> uris) throws IOException {
+        List<ImagePayload> payloads = new ArrayList<>();
+        for (Uri uri : uris) {
+            payloads.add(prepareImagePayload(uri));
+        }
+        return payloads;
+    }
+
+    private List<ChatAttachment> buildChatAttachments(List<ImagePayload> payloads) {
+        if (payloads == null || payloads.isEmpty()) {
+            return NO_ATTACHMENTS;
+        }
+        List<ChatAttachment> attachments = new ArrayList<>();
+        for (ImagePayload payload : payloads) {
+            attachments.add(ChatAttachment.image(payload.localPath, payload.mimeType, null));
+        }
+        return attachments;
+    }
+
     private MessageEntity mapToMessageEntity(ChatMessage message, long conversationId) {
         MessageEntity entity = new MessageEntity();
         entity.conversationId = conversationId;
@@ -365,7 +449,50 @@ public class ChatViewModel extends AndroidViewModel {
         entity.status = message.getStatus() != null ? message.getStatus().name().toLowerCase() : "success";
         entity.createdAt = message.getTimestamp();
         entity.updatedAt = System.currentTimeMillis();
+        List<ChatAttachment> attachments = message.getAttachments();
+        if (attachments != null && !attachments.isEmpty()) {
+            ChatAttachment attachment = attachments.get(0);
+            if (attachment != null) {
+                entity.attachmentType = attachment.getType();
+                entity.attachmentLocalPath = attachment.getLocalPath();
+                entity.attachmentMime = attachment.getMimeType();
+                entity.attachmentRemoteUrl = attachment.getRemoteUrl();
+            }
+            entity.attachmentsJson = gson.toJson(attachments);
+        } else {
+            entity.attachmentsJson = null;
+        }
         return entity;
+    }
+
+    private List<ChatAttachment> buildAttachmentsFromEntity(MessageEntity entity) {
+        if (entity == null) {
+            return NO_ATTACHMENTS;
+        }
+        if (!TextUtils.isEmpty(entity.attachmentsJson)) {
+            try {
+                List<ChatAttachment> result = gson.fromJson(
+                    entity.attachmentsJson,
+                    new TypeToken<List<ChatAttachment>>() {}.getType()
+                );
+                if (result != null && !result.isEmpty()) {
+                    return result;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        boolean hasLocal = !TextUtils.isEmpty(entity.attachmentLocalPath);
+        boolean hasRemote = !TextUtils.isEmpty(entity.attachmentRemoteUrl);
+        if (!hasLocal && !hasRemote) {
+            return NO_ATTACHMENTS;
+        }
+        if (!TextUtils.isEmpty(entity.attachmentType)
+            && ChatAttachment.TYPE_IMAGE.equals(entity.attachmentType)) {
+            return Collections.singletonList(
+                ChatAttachment.image(entity.attachmentLocalPath, entity.attachmentMime, entity.attachmentRemoteUrl)
+            );
+        }
+        return NO_ATTACHMENTS;
     }
 
     private String buildConversationTitle(String original) {
@@ -376,10 +503,108 @@ public class ChatViewModel extends AndroidViewModel {
         return trimmed.length() > 18 ? trimmed.substring(0, 18) + "..." : trimmed;
     }
 
+    private ImagePayload prepareImagePayload(Uri imageUri) throws IOException {
+        ContentResolver resolver = getApplication().getContentResolver();
+        if (resolver == null) {
+            throw new IOException("无法访问图片内容");
+        }
+        String mimeType = resolveMimeType(imageUri);
+        File imagesDir = new File(getApplication().getFilesDir(), "chat_images");
+        if (!imagesDir.exists() && !imagesDir.mkdirs()) {
+            throw new IOException("无法创建本地图片目录");
+        }
+        String extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType);
+        if (TextUtils.isEmpty(extension)) {
+            extension = "jpg";
+        }
+        File targetFile = new File(imagesDir, "img_" + System.currentTimeMillis() + "." + extension);
+        try (InputStream inputStream = resolver.openInputStream(imageUri);
+             OutputStream outputStream = new FileOutputStream(targetFile)) {
+            if (inputStream == null) {
+                throw new IOException("无法读取图片数据");
+            }
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+        }
+        byte[] compressed = compressForUpload(targetFile, mimeType);
+        String base64 = Base64.encodeToString(compressed, Base64.NO_WRAP);
+        return new ImagePayload(targetFile.getAbsolutePath(), mimeType, base64);
+    }
+
+    private String resolveMimeType(Uri uri) {
+        ContentResolver resolver = getApplication().getContentResolver();
+        if (resolver != null) {
+            String detected = resolver.getType(uri);
+            if (!TextUtils.isEmpty(detected)) {
+                return detected;
+            }
+        }
+        String extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+        if (!TextUtils.isEmpty(extension)) {
+            String guessed = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+            if (!TextUtils.isEmpty(guessed)) {
+                return guessed;
+            }
+        }
+        return "image/jpeg";
+    }
+
+    private byte[] compressForUpload(File file, String mimeType) throws IOException {
+        BitmapFactory.Options bounds = new BitmapFactory.Options();
+        bounds.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(), bounds);
+
+        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        decodeOptions.inSampleSize = calculateInSampleSize(bounds, IMAGE_MAX_DIMENSION, IMAGE_MAX_DIMENSION);
+        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), decodeOptions);
+        if (bitmap == null) {
+            throw new IOException("无法解析图片内容");
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Bitmap.CompressFormat format = mimeType != null && mimeType.contains("png")
+            ? Bitmap.CompressFormat.PNG
+            : Bitmap.CompressFormat.JPEG;
+        bitmap.compress(format, format == Bitmap.CompressFormat.JPEG ? 85 : 100, bos);
+        bitmap.recycle();
+        return bos.toByteArray();
+    }
+
+    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        int height = options.outHeight;
+        int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            while ((halfHeight / inSampleSize) >= reqHeight
+                && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return Math.max(1, inSampleSize);
+    }
+
     @Override
     protected void onCleared() {
         disposables.clear();
         super.onCleared();
+    }
+
+    private static class ImagePayload {
+        final String localPath;
+        final String mimeType;
+        final String base64;
+
+        ImagePayload(String localPath, String mimeType, String base64) {
+            this.localPath = localPath;
+            this.mimeType = mimeType;
+            this.base64 = base64;
+        }
     }
 
     public interface PromptCallback {

@@ -23,8 +23,23 @@ class ModelRouterService(
 
     data class MessagePayload(
         val role: String,
-        val content: String
+        val parts: List<MessagePart>
     )
+
+    data class MessagePart(
+        val type: String,
+        val text: String? = null,
+        val imageBase64: String? = null,
+        val mimeType: String? = null
+    ) {
+        companion object {
+            const val TYPE_TEXT = "text"
+            const val TYPE_IMAGE = "image"
+
+            fun text(content: String) = MessagePart(type = TYPE_TEXT, text = content)
+            fun image(base64: String, mimeType: String?) = MessagePart(type = TYPE_IMAGE, imageBase64 = base64, mimeType = mimeType)
+        }
+    }
 
     data class ProviderResult(
         val provider: String,
@@ -46,10 +61,42 @@ class ModelRouterService(
             return buildDemoReply(providerKey, history, "当前模型未配置真实 API Key，已启用示例回复。请配置环境变量 ${providerKey.uppercase()}_API_KEY")
         }
 
+        val supportsVision = provider.model.contains("vision", ignoreCase = true)
+        val formattedMessages = history.map { message ->
+            val parts = message.parts.ifEmpty { listOf(MessagePart.text("")) }.map { part ->
+                when {
+                    part.type == MessagePart.TYPE_IMAGE && supportsVision && !part.imageBase64.isNullOrBlank() -> {
+                        mapOf(
+                            "type" to "image_url",
+                            "image_url" to mapOf(
+                                "url" to "data:${part.mimeType ?: "image/jpeg"};base64,${part.imageBase64}"
+                            )
+                        )
+                    }
+                    part.type == MessagePart.TYPE_IMAGE -> {
+                        mapOf(
+                            "type" to "text",
+                            "text" to "[图片已附加]"
+                        )
+                    }
+                    else -> {
+                        mapOf(
+                            "type" to "text",
+                            "text" to (part.text ?: "")
+                        )
+                    }
+                }
+            }
+            mapOf(
+                "role" to message.role,
+                "content" to parts
+            )
+        }
+
         val payload = mapOf(
             "model" to provider.model,
             "temperature" to provider.temperature,
-            "messages" to history.map { mapOf("role" to it.role, "content" to it.content) }
+            "messages" to formattedMessages
         )
         val start = System.currentTimeMillis()
         
@@ -140,7 +187,7 @@ class ModelRouterService(
             )
         }
 
-        val reply = extractReply(responseNode)
+        val reply = sanitizeReply(extractReply(responseNode))
         val tokens = responseNode.path("usage").path("total_tokens").asInt(0).takeIf { it > 0 }
         val latency = System.currentTimeMillis() - start
         return ProviderResult(
@@ -160,26 +207,43 @@ class ModelRouterService(
     }
 
     private fun buildDemoReply(providerKey: String, history: List<MessagePayload>, reason: String): ProviderResult {
-        val userPrompt = history.lastOrNull { it.role.equals("user", ignoreCase = true) }?.content
-            ?: "（没有捕获到用户输入）"
+        val userPrompt = history.lastOrNull { it.role.equals("user", ignoreCase = true) }
+            ?.parts?.firstOrNull { it.type == MessagePart.TYPE_TEXT }?.text
+            ?: "（包含图片或空输入）"
         val providerName = when (providerKey) {
             "deepseek" -> "DeepSeek"
             "doubao" -> "豆包"
             else -> providerKey
         }
         val envVarName = "${providerKey.uppercase()}_API_KEY"
-        val reply = """
+        val reply = sanitizeReply("""
             【演示模式】$reason
 
             你刚才说：$userPrompt
             
             提示：这是模拟的 ${providerName} 回答。要使用真实的 ${providerName} API，请在系统环境变量中配置 $envVarName。
-        """.trimIndent()
+        """.trimIndent())
         return ProviderResult(
             provider = providerKey,
             reply = reply,
             latency = 5,
             tokens = null
         )
+    }
+
+    private fun sanitizeReply(raw: String): String {
+        var result = raw
+        result = result.replace(Regex("(?is)<think>.*?</think>"), "")
+        val finalMarkers = listOf("最终回答", "答复", "最终回复")
+        for (marker in finalMarkers) {
+            val idx = result.indexOf(marker)
+            if (idx >= 0) {
+                result = result.substring(idx)
+                break
+            }
+        }
+        result = result.replace(Regex("(?is)(思考过程|推理过程)[:：].*?(?=\\n\\s*\\n|$)"), "")
+        result = result.replace("\\\\n", "\n")
+        return result.trim()
     }
 }

@@ -53,17 +53,36 @@ class ChatController(
         val providerKey = request.model ?: providerProperties.defaultProvider
         val providerModel = providerProperties.providers[providerKey]?.model ?: providerKey
 
+        val initialMessage = when {
+            request.message.isNotBlank() -> request.message
+            !request.images.isNullOrEmpty() -> "[图片]"
+            else -> ""
+        }
+
         val conversation = conversationService.createOrFindConversation(
             userId = userId,
             conversationId = request.conversationId,
             provider = providerKey,
             model = providerModel,
-            initialMessage = request.message
+            initialMessage = initialMessage
         )
 
-        conversationService.saveUserMessage(conversation.id!!, request.message)
+        conversationService.saveUserMessage(conversation.id!!, initialMessage)
         val history = conversationService.getRecentMessages(conversation.id!!)
-            .map { ModelRouterService.MessagePayload(it.role, it.content) }
+            .map {
+                ModelRouterService.MessagePayload(
+                    role = it.role,
+                    parts = listOf(ModelRouterService.MessagePart.text(it.content))
+                )
+            }
+            .toMutableList()
+
+        history.add(
+            ModelRouterService.MessagePayload(
+                role = "user",
+                parts = buildUserParts(request)
+            )
+        )
 
         val result = modelRouterService.generateReply(providerKey, history)
         conversationService.saveAssistantMessage(conversation.id!!, result.reply, result.tokens, result.latency)
@@ -82,5 +101,24 @@ class ChatController(
         val token = authorization?.removePrefix("Bearer ")?.trim()
             ?: throw IllegalArgumentException("Missing Authorization header")
         return authService.verify(token)
+    }
+
+    private fun buildUserParts(request: ChatRequest): List<ModelRouterService.MessagePart> {
+        val parts = mutableListOf<ModelRouterService.MessagePart>()
+        if (request.message.isNotBlank()) {
+            parts.add(ModelRouterService.MessagePart.text(request.message))
+        }
+        request.images?.forEach {
+            parts.add(
+                ModelRouterService.MessagePart.image(
+                    it.base64,
+                    it.mime ?: "image/jpeg"
+                )
+            )
+        }
+        if (parts.isEmpty()) {
+            parts.add(ModelRouterService.MessagePart.text("[图片]"))
+        }
+        return parts
     }
 }

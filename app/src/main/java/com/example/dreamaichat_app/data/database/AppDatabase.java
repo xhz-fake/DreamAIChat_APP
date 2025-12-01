@@ -34,7 +34,7 @@ import com.example.dreamaichat_app.data.entity.UserEntity;
         ConversationEntity.class, // 会话表
         MessageEntity.class // 消息表
     },
-    version = 1,  // 数据库版本号，每次修改表结构时递增
+    version = 3,  // 数据库版本号，每次修改表结构时递增
     exportSchema = false  // 不导出数据库架构（开发阶段可以设为 false）
 )
 @TypeConverters({DateConverter.class})  // 注册类型转换器

@@ -79,6 +79,7 @@ dependencies {
     
     // JSON 解析
     implementation(libs.gson)
+    implementation(libs.glide)
     
     // 测试
     testImplementation(libs.junit)

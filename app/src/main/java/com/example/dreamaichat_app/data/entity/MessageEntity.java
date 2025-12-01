@@ -71,6 +71,31 @@ public class MessageEntity {
      * 更新时间（时间戳）
      */
     public Long updatedAt;
+
+    /**
+     * 附件类型（如 image）
+     */
+    public String attachmentType;
+
+    /**
+     * 本地文件路径（仅对图片等需要缓存的附件使用）
+     */
+    public String attachmentLocalPath;
+
+    /**
+     * 附件的 MIME 类型（image/png 等）
+     */
+    public String attachmentMime;
+
+    /**
+     * 远程资源地址（如果来自服务端）
+     */
+    public String attachmentRemoteUrl;
+
+    /**
+     * 附件列表（JSON 序列化）
+     */
+    public String attachmentsJson;
     
     // 构造函数
     public MessageEntity() {

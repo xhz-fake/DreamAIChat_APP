@@ -25,6 +25,13 @@
     <string name="chat_input_hint">与Dream对话…</string>
     <string name="send">发送</string>
     <string name="chat_generating">AI 正在生成回复…</string>
+    <string name="chat_attach_image">图片</string>
+    <string name="chat_copy_content">复制回复</string>
+    <string name="chat_remove_attachment">移除图片</string>
+    <string name="toast_template_center">模板中心开发中</string>
+    <string name="toast_routing_dev">模型路由开发中</string>
+    <string name="toast_graph_dev">对话图谱开发中</string>
+    <string name="toast_new_chat">已创建新对话</string>
     
     <!-- 历史界面 -->
     <string name="history_search_hint">搜索历史对话</string>

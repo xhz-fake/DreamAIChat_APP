@@ -17,7 +17,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.dreamaichat_app.databinding.FragmentHistoryBinding;
 import com.example.dreamaichat_app.model.ConversationSummary;
+import com.example.dreamaichat_app.ui.chat.ChatViewModel;
 import com.example.dreamaichat_app.ui.history.adapter.ConversationAdapter;
+import com.example.dreamaichat_app.ui.main.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +86,11 @@ public class HistoryFragment extends Fragment implements ConversationAdapter.OnC
         });
 
         binding.btnStartChat.setOnClickListener(v -> {
-            if (getParentFragmentManager() != null) {
-                getParentFragmentManager().popBackStack();
+            if (getActivity() instanceof MainActivity) {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                ChatViewModel chatViewModel = new ViewModelProvider(mainActivity).get(ChatViewModel.class);
+                chatViewModel.startNewChat();
+                mainActivity.showChatFragment();
             }
         });
     }

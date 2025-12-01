@@ -1,12 +1,15 @@
 ﻿package com.dreamaichat.backend.dto
 
-import jakarta.validation.constraints.NotBlank
-
 data class ChatRequest(
     val conversationId: Long? = null,
-    @field:NotBlank(message = "娑堟伅鍐呭涓嶈兘涓虹┖")
-    val message: String,
-    val model: String? = null
+    val message: String = "",
+    val model: String? = null,
+    val images: List<ImagePayload>? = emptyList()
+)
+
+data class ImagePayload(
+    val base64: String,
+    val mime: String? = null
 )
 
 data class ChatResponse(

@@ -35,7 +35,7 @@ public interface ConversationDao {
      * @param conversation 会话实体
      * @return Completable - 操作完成通知
      */
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     Completable insertConversation(ConversationEntity conversation);
     
     /**
@@ -132,5 +132,17 @@ public interface ConversationDao {
      */
     @Query("UPDATE conversations SET messageCount = :messageCount, updatedAt = :updatedAt WHERE id = :id")
     Completable updateMessageCount(Long id, Integer messageCount, Long updatedAt);
+
+    /**
+     * 更新会话的基础信息（标题、模型、最后消息等）
+     */
+    @Query("UPDATE conversations SET title = :title, model = :model, messageCount = :messageCount, lastMessagePreview = :lastMessagePreview, lastMessageTime = :lastMessageTime, updatedAt = :updatedAt WHERE id = :id")
+    Completable updateConversationMeta(Long id,
+                                       String title,
+                                       String model,
+                                       Integer messageCount,
+                                       String lastMessagePreview,
+                                       Long lastMessageTime,
+                                       Long updatedAt);
 }
 

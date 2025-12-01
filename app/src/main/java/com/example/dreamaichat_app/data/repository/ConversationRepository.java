@@ -38,7 +38,16 @@ public class ConversationRepository {
      * @return Completable - 操作完成通知
      */
     public Completable insertOrUpdateConversation(ConversationEntity conversation) {
-        return conversationDao.insertConversation(conversation);
+        return conversationDao.insertConversation(conversation)
+            .andThen(conversationDao.updateConversationMeta(
+                conversation.id,
+                conversation.title,
+                conversation.model,
+                conversation.messageCount,
+                conversation.lastMessagePreview,
+                conversation.lastMessageTime,
+                conversation.updatedAt
+            ));
     }
     
     /**

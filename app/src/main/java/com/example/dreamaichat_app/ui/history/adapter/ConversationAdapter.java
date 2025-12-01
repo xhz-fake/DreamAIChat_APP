@@ -13,6 +13,7 @@ import com.example.dreamaichat_app.model.ConversationSummary;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * 鍘嗗彶璁板綍鍒楄〃閫傞厤鍣ㄣ€? */
@@ -29,6 +30,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public ConversationAdapter(List<ConversationSummary> data, OnConversationClickListener listener) {
         this.data = data;
         this.listener = listener;
+        this.timeFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
     }
 
     public void submit(List<ConversationSummary> conversations) {

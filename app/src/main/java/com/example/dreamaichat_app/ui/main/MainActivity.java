@@ -68,8 +68,14 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
     }
 
+    private boolean isUpdatingNavigation = false;
+
     private void setupBottomNavigation() {
         bottomNavigation.setOnItemSelectedListener(item -> {
+            // 防止递归调用
+            if (isUpdatingNavigation) {
+                return true;
+            }
             if (item.getItemId() == R.id.nav_chat) {
                 showFragment(chatFragment);
                 return true;
@@ -108,6 +114,27 @@ public class MainActivity extends AppCompatActivity {
             .beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit();
+        
+        // 更新底部导航栏选中状态（防止递归调用）
+        isUpdatingNavigation = true;
+        try {
+            if (fragment == chatFragment) {
+                bottomNavigation.setSelectedItemId(R.id.nav_chat);
+            } else if (fragment == historyFragment) {
+                bottomNavigation.setSelectedItemId(R.id.nav_history);
+            } else if (fragment == profileFragment) {
+                bottomNavigation.setSelectedItemId(R.id.nav_profile);
+            }
+        } finally {
+            isUpdatingNavigation = false;
+        }
+    }
+    
+    /**
+     * 切换到聊天界面（供其他 Fragment 调用）
+     */
+    public void showChatFragment() {
+        showFragment(chatFragment);
     }
 
     @Override

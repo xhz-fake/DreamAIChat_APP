@@ -92,7 +92,51 @@ public class HistoryFragment extends Fragment implements ConversationAdapter.OnC
 
     @Override
     public void onConversationClick(ConversationSummary summary) {
-        Toast.makeText(requireContext(), "打开会话：" + summary.getTitle(), Toast.LENGTH_SHORT).show();
+        // 获取 MainActivity 的 ChatViewModel
+        if (getActivity() instanceof com.example.dreamaichat_app.ui.main.MainActivity) {
+            com.example.dreamaichat_app.ui.main.MainActivity mainActivity = 
+                (com.example.dreamaichat_app.ui.main.MainActivity) getActivity();
+            
+            // 从 modelTag 中提取模型ID（格式：模型：deepseek 或 模型：doubao）
+            String modelId = extractModelId(summary.getModelTag());
+            
+            // 加载会话
+            androidx.lifecycle.ViewModelProvider viewModelProvider = 
+                new androidx.lifecycle.ViewModelProvider(mainActivity);
+            com.example.dreamaichat_app.ui.chat.ChatViewModel chatViewModel = 
+                viewModelProvider.get(com.example.dreamaichat_app.ui.chat.ChatViewModel.class);
+            chatViewModel.loadConversation(summary.getId(), modelId);
+            
+            // 切换到聊天界面
+            mainActivity.showChatFragment();
+        }
+    }
+    
+    /**
+     * 从模型标签中提取模型ID
+     * 支持格式："模型：deepseek"、"deepseek"、"doubao" 等
+     */
+    private String extractModelId(String modelTag) {
+        if (modelTag == null || modelTag.isEmpty()) {
+            return null;
+        }
+        // 移除 "模型：" 前缀（如果存在）
+        String tag = modelTag.replace("模型：", "").trim();
+        
+        // 检查是否是已知的模型ID
+        String lowerTag = tag.toLowerCase();
+        if (lowerTag.contains("deepseek")) {
+            return "deepseek";
+        } else if (lowerTag.contains("doubao") || lowerTag.contains("豆包")) {
+            return "doubao";
+        }
+        
+        // 如果直接是模型ID，直接返回
+        if (lowerTag.equals("deepseek") || lowerTag.equals("doubao")) {
+            return lowerTag;
+        }
+        
+        return null;
     }
 
     @Override

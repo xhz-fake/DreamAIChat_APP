@@ -12,9 +12,7 @@ import com.example.dreamaichat_app.databinding.ItemMessageUserBinding;
 import com.example.dreamaichat_app.model.ChatMessage;
 import com.example.dreamaichat_app.model.ChatRole;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * 鑱婂ぉ娑堟伅閫傞厤鍣紝鏀寔鐢ㄦ埛/AI/绯荤粺涓夌鏍峰紡銆? */
@@ -25,7 +23,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int TYPE_SYSTEM = 2;
 
     private List<ChatMessage> data;
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
     public ChatMessageAdapter(List<ChatMessage> data) {
         this.data = data;
@@ -88,7 +85,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void bind(ChatMessage message) {
             binding.tvContent.setText(message.getContent());
-            binding.tvTime.setText(timeFormat.format(message.getTimestamp()));
             binding.messageStatus.setText(message.getStatus().name());
         }
     }
@@ -103,7 +99,6 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         void bind(ChatMessage message) {
             binding.tvContent.setText(message.getContent());
-            binding.tvTime.setText(timeFormat.format(message.getTimestamp()));
         }
     }
 

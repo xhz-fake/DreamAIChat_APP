@@ -60,11 +60,11 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_upgrade"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="32dp"
+                        android:layout_height="38dp"
                         android:text="@string/profile_upgrade"
-                        android:textSize="12sp"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                        android:textSize="12sp" />
                 </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton

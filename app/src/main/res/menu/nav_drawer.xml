@@ -3,17 +3,17 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_templates"
-            android:icon="@android:drawable/ic_menu_edit"
+            android:icon="@drawable/ic_nav_templates"
             android:title="对话模板" />
-        
+
         <item
             android:id="@+id/nav_routing"
-            android:icon="@android:drawable/ic_menu_rotate"
+            android:icon="@drawable/ic_nav_routing"
             android:title="智能路由" />
-        
+
         <item
             android:id="@+id/nav_graph"
-            android:icon="@android:drawable/ic_menu_view"
+            android:icon="@drawable/ic_nav_graph"
             android:title="对话图谱" />
     </group>
     
@@ -21,12 +21,12 @@
         <menu>
             <item
                 android:id="@+id/nav_settings"
-                android:icon="@android:drawable/ic_menu_preferences"
+                android:icon="@drawable/ic_nav_settings"
                 android:title="@string/settings" />
-            
+
             <item
                 android:id="@+id/nav_logout"
-                android:icon="@android:drawable/ic_menu_close_clear_cancel"
+                android:icon="@drawable/ic_nav_logout"
                 android:title="退出登录" />
         </menu>
     </item>

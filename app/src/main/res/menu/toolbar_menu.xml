@@ -4,12 +4,12 @@
     <item
         android:id="@+id/action_new_chat"
         android:title="@string/chat_tab"
-        android:icon="@android:drawable/ic_input_add"
+        android:icon="@drawable/ic_toolbar_new_chat"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_settings"
         android:title="@string/settings"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/ic_toolbar_settings"
         app:showAsAction="ifRoom" />
 </menu>

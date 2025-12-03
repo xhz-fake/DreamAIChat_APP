@@ -68,7 +68,8 @@ public abstract class AppDatabase extends RoomDatabase {
                     AppDatabase.class,
                     DATABASE_NAME
                 )
-                .fallbackToDestructiveMigration()  // 开发阶段：版本升级时删除旧数据（生产环境需要 Migration）
+                // ⚠️ 重要：不再使用 fallbackToDestructiveMigration，避免版本升级时清空历史记录
+                // 如后续修改表结构，需要添加 Migration 而不是直接销毁数据库
                 .allowMainThreadQueries()  // 允许在主线程查询（仅用于开发，生产环境应使用后台线程）
                 .build();
         }

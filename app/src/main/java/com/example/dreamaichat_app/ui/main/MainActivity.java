@@ -114,6 +114,8 @@ public class MainActivity extends AppCompatActivity {
             showFragment(profileFragment);
         } else if (id == R.id.nav_logout) {
             // 清理会话并返回登录页
+            // 注意：为了保持历史记录，我们不清除本地数据库数据
+            // 而是在下次登录时使用相同的用户ID或从本地数据库读取
             if (sessionManager != null) {
                 sessionManager.clear();
             }

@@ -136,19 +136,26 @@ public interface ConversationDao {
     /**
      * 更新会话的基础信息（标题、模型、最后消息等）
      */
-    @Query("UPDATE conversations SET title = :title, model = :model, messageCount = :messageCount, lastMessagePreview = :lastMessagePreview, lastMessageTime = :lastMessageTime, updatedAt = :updatedAt WHERE id = :id")
+    @Query("UPDATE conversations SET title = :title, model = :model, messageCount = :messageCount, lastMessagePreview = :lastMessagePreview, lastMessageTime = :lastMessageTime, updatedAt = :updatedAt, userId = :userId WHERE id = :id")
     Completable updateConversationMeta(Long id,
                                        String title,
                                        String model,
                                        Integer messageCount,
                                        String lastMessagePreview,
                                        Long lastMessageTime,
-                                       Long updatedAt);
+                                       Long updatedAt,
+                                       Long userId);
 
     /**
      * 同步查询：获取某个用户的所有会话（用于统计）
      */
     @Query("SELECT * FROM conversations WHERE userId = :userId")
     List<ConversationEntity> getAllForUserSync(Long userId);
+    
+    /**
+     * 更新所有特定userId的会话的userId为新的userId
+     */
+    @Query("UPDATE conversations SET userId = :newUserId WHERE userId = :oldUserId")
+    void updateUserIdForAllConversations(Long oldUserId, Long newUserId);
 }
 

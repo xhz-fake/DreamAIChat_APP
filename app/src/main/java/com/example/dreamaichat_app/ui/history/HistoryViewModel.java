@@ -8,11 +8,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.dreamaichat_app.data.entity.ConversationEntity;
 import com.example.dreamaichat_app.data.local.SessionManager;
-import com.example.dreamaichat_app.data.remote.RetrofitClient;
-import com.example.dreamaichat_app.data.remote.api.ApiService;
-import com.example.dreamaichat_app.data.remote.model.ApiResponse;
-import com.example.dreamaichat_app.data.remote.model.ConversationSummaryResponse;
+import com.example.dreamaichat_app.data.repository.ConversationRepository;
 import com.example.dreamaichat_app.model.ConversationSummary;
 
 import java.util.ArrayList;
@@ -29,15 +27,15 @@ public class HistoryViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> error = new MutableLiveData<>();
 
-    private final ApiService apiService;
     private final SessionManager sessionManager;
+    private final ConversationRepository conversationRepository;
     private final CompositeDisposable disposables = new CompositeDisposable();
     private String lastQuery = "";
 
     public HistoryViewModel(@NonNull Application application) {
         super(application);
-        this.apiService = RetrofitClient.getInstance().getApiService();
         this.sessionManager = new SessionManager(application);
+        this.conversationRepository = new ConversationRepository(application);
     }
 
     public LiveData<List<ConversationSummary>> getConversations() {
@@ -53,18 +51,17 @@ public class HistoryViewModel extends AndroidViewModel {
     }
 
     public void refresh() {
-        String token = sessionManager.getToken();
-        if (TextUtils.isEmpty(token)) {
-            error.setValue("请先登录后查看历史记录");
-            return;
-        }
         loading.setValue(true);
+        long userId = sessionManager.getUserId();
+        // 使用默认用户ID -1L 作为兜底，确保能获取到本地数据
+        long actualUserId = userId > 0 ? userId : -1L;
+        
         disposables.add(
-            apiService.conversations("Bearer " + token)
+            conversationRepository.getConversationsByUserId(actualUserId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                    response -> handleConversationsResponse(response),
+                    conversationEntities -> handleConversationsResponse(conversationEntities),
                     throwable -> {
                         loading.setValue(false);
                         error.setValue(throwable.getMessage() != null ? throwable.getMessage() : "获取会话列表失败");
@@ -78,16 +75,16 @@ public class HistoryViewModel extends AndroidViewModel {
         applyFilter(lastQuery, source.getValue());
     }
 
-    private void handleConversationsResponse(ApiResponse<List<ConversationSummaryResponse>> apiResponse) {
+    private void handleConversationsResponse(List<ConversationEntity> conversationEntities) {
         loading.setValue(false);
-        if (apiResponse == null || !apiResponse.success || apiResponse.data == null) {
-            error.setValue(apiResponse != null ? apiResponse.message : "获取会话列表失败");
+        if (conversationEntities == null) {
+            error.setValue("获取会话列表失败");
             return;
         }
 
         List<ConversationSummary> mapped = new ArrayList<>();
-        for (ConversationSummaryResponse response : apiResponse.data) {
-            mapped.add(mapToSummary(response));
+        for (ConversationEntity entity : conversationEntities) {
+            mapped.add(mapToSummary(entity));
         }
         source.setValue(mapped);
         applyFilter(lastQuery, mapped);
@@ -112,19 +109,18 @@ public class HistoryViewModel extends AndroidViewModel {
         }
     }
 
-    private ConversationSummary mapToSummary(ConversationSummaryResponse response) {
-        long id = response != null && response.id != null ? response.id : System.currentTimeMillis();
-        String title = response != null && !TextUtils.isEmpty(response.title) ? response.title : "未命名会话";
+    private ConversationSummary mapToSummary(ConversationEntity entity) {
+        long id = entity.id != null ? entity.id : System.currentTimeMillis();
+        String title = !TextUtils.isEmpty(entity.title) ? entity.title : "未命名会话";
         String snippet = pickFirstNonEmpty(
-            response != null ? response.snippet : null,
-            response != null ? response.latestMessage : null,
+            entity.lastMessagePreview,
             "暂无摘要"
         );
-        long timestamp = response != null && response.updatedAt != null ? response.updatedAt : System.currentTimeMillis();
-        String modelTag = response != null && !TextUtils.isEmpty(response.model)
-            ? response.model
+        long timestamp = entity.lastMessageTime != null ? entity.lastMessageTime : System.currentTimeMillis();
+        String modelTag = !TextUtils.isEmpty(entity.model)
+            ? entity.model
             : "AI";
-        boolean pinned = response != null && Boolean.TRUE.equals(response.pinned);
+        boolean pinned = entity.isFavorite;
         return new ConversationSummary(id, title, snippet, timestamp, modelTag, pinned);
     }
 

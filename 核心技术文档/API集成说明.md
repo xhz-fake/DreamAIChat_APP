@@ -350,3 +350,23 @@ public Single<UserInfoResponse> execute(String token) {
 
 记住：地址格式必须是 `https://example.com/` 这样的格式！
 
+## 13. 模型联网诊断（配合后端使用）
+
+- Android 端所有请求都会先发到 Spring Boot 后端，再由后端调用豆包 / DeepSeek。
+- 如果发现 Android 端始终收到“演示模式”回复，请在后端机器执行：
+
+```bash
+curl http://localhost:8081/api/diagnostics/providers
+```
+
+该接口会告诉你：
+
+| 字段 | 含义 |
+| --- | --- |
+| `apiKeyConfigured` | API Key 是否仍为 `DEMO-KEY` |
+| `dnsResolved` | 服务器是否能解析模型域名 |
+| `reachable` | 是否能在 5 秒内建立 TCP 连接 |
+| `message` | 建议的下一步操作 |
+
+只有当 **API Key 配置正确 + DNS 可解析 + TCP 可连接** 时，Android 端才能获得真实的大模型回复。
+

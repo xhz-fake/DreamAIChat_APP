@@ -114,19 +114,16 @@ public class ProfileFragment extends Fragment {
         Application application = requireActivity().getApplication();
         SessionManager sessionManager = new SessionManager(context);
         long userId = sessionManager.getUserId();
-        if (userId <= 0) {
-            // 未登录时显示 0
-            tvConversationCount.setText("0");
-            tvMessageCount.setText("0");
-            tvDaysCount.setText("0");
-            return;
-        }
+        
+        // 即使未登录，也要查询数据库（可能有默认用户或演示数据）
+        // 如果userId<=0，使用-1L作为默认值查询
+        long actualUserId = userId > 0 ? userId : -1L;
 
         AppDatabase db = AppDatabase.getInstance(application);
         disposables.add(
             Single.fromCallable(() -> {
-                    List<ConversationEntity> conversations = db.conversationDao().getAllForUserSync(userId);
-                    List<MessageEntity> messages = db.messageDao().getAllForUserSync(userId);
+                    List<ConversationEntity> conversations = db.conversationDao().getAllForUserSync(actualUserId);
+                    List<MessageEntity> messages = db.messageDao().getAllForUserSync(actualUserId);
                     long firstLoginTime = sessionManager.getFirstLoginTime();
                     if (firstLoginTime <= 0L && !messages.isEmpty()) {
                         firstLoginTime = messages.get(0).createdAt != null ? messages.get(0).createdAt : System.currentTimeMillis();
@@ -160,6 +157,13 @@ public class ProfileFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         disposables.clear();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 每次Fragment重新显示时刷新统计数据
+        loadStats();
     }
 }
 

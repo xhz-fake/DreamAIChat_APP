@@ -118,12 +118,34 @@ public class LoginActivity extends AppCompatActivity {
         if (token != null && userId != null) {
             sessionManager.saveSession(token, userId);
             sessionManager.setAccount(etAccount.getText() != null ? etAccount.getText().toString().trim() : null);
+            
+            // 更新之前保存的会话和消息的userId从-1L到真正的userId
+            updateSessionAndMessageUserIds(userId);
         }
         // 跳转到主界面
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+    
+    private void updateSessionAndMessageUserIds(long newUserId) {
+        // 在后台线程中更新会话和消息的userId
+        new Thread(() -> {
+            try {
+                // 获取数据库实例
+                com.example.dreamaichat_app.data.database.AppDatabase db = com.example.dreamaichat_app.data.database.AppDatabase.getInstance(this);
+                
+                // 更新所有userId为-1L的会话的userId为新的userId
+                db.conversationDao().updateUserIdForAllConversations(-1L, newUserId);
+                
+                // 更新所有userId为-1L的消息的userId为新的userId
+                // 注意：MessageEntity没有直接的userId字段，它通过conversationId关联到会话
+                // 由于会话的userId已经更新，消息会通过外键关联到正确的用户
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
     
     private void showLoading(boolean show) {

@@ -398,17 +398,16 @@ public class ChatViewModel extends AndroidViewModel {
             return;
         }
         long userId = sessionManager.getUserId();
-        if (userId <= 0) {
-            toastEvent.postValue("本地保存聊天记录失败：未找到登录用户信息");
-            return;
-        }
+        
+        // 如果userId<=0，使用-1L作为默认值保存数据（用于演示模式）
+        long actualUserId = userId > 0 ? userId : -1L;
 
         String modelId = currentModel.getValue() != null ? currentModel.getValue().getId() : data.provider;
         long timestamp = System.currentTimeMillis();
 
         ConversationEntity conversation = new ConversationEntity();
         conversation.id = conversationId;
-        conversation.userId = userId;
+        conversation.userId = actualUserId;
         conversation.title = buildConversationTitle(userMessage.getContent());
         conversation.model = modelId;
         conversation.messageCount = ensureMessageList().size();

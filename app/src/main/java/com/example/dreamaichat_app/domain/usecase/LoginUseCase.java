@@ -76,18 +76,38 @@ public class LoginUseCase {
             .onErrorReturn(error -> new LoginResult(false, null, null, extractErrorMessage(error)));
     }
 
-    private Single<LoginResult> saveUserAndBuildResult(String account,
-                                                       String usernameFallback,
-                                                       LoginResponse response) {
-        UserEntity user = new UserEntity();
-        user.account = account;
-        user.username = response.username != null ? response.username : (usernameFallback != null ? usernameFallback : account);
-        user.token = response.token;
-        user.tokenExpireTime = response.expireTime;
-        user.memberType = response.memberType != null ? response.memberType : "free";
-        user.createdAt = System.currentTimeMillis();
-        user.updatedAt = System.currentTimeMillis();
-        return userRepository.insertOrUpdateUserWithId(user)
+    private Single<LoginResult> saveUserAndBuildResult(String account, String usernameFallback, LoginResponse response) {
+        return userRepository.getUserByAccount(account)
+            .flatMapSingle(existingUser -> {
+                // 更新已有用户，避免触发 REPLACE → 级联删除历史记录
+                existingUser.account = account;
+                existingUser.username = response.username != null ? response.username : (usernameFallback != null ? usernameFallback : account);
+                existingUser.token = response.token;
+                existingUser.tokenExpireTime = response.expireTime;
+                existingUser.memberType = response.memberType != null ? response.memberType : "free";
+                existingUser.updatedAt = System.currentTimeMillis();
+                Long existingId = existingUser.id;
+                if (existingId == null) {
+                    // 理论上不会发生，但兜底处理
+                    existingId = -1L;
+                }
+                Long finalExistingId = existingId;
+                return userRepository.updateUser(existingUser)
+                    .andThen(Single.just(finalExistingId));
+            })
+            .switchIfEmpty(
+                Single.fromCallable(() -> {
+                    UserEntity newUser = new UserEntity();
+                    newUser.account = account;
+                    newUser.username = response.username != null ? response.username : (usernameFallback != null ? usernameFallback : account);
+                    newUser.token = response.token;
+                    newUser.tokenExpireTime = response.expireTime;
+                    newUser.memberType = response.memberType != null ? response.memberType : "free";
+                    newUser.createdAt = System.currentTimeMillis();
+                    newUser.updatedAt = System.currentTimeMillis();
+                    return newUser;
+                }).flatMap(userRepository::insertOrUpdateUserWithId)
+            )
             .map(userId -> new LoginResult(true, response.token, userId, null));
     }
 

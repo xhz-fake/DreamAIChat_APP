@@ -69,7 +69,13 @@ public class SessionManager {
     }
 
     public void clear() {
-        prefs.edit().clear().apply();
+        // 清除所有会话数据，包括token、userId等
+        // 注意：不清除用户名和账户信息，以便下次登录时保持一致
+        prefs.edit()
+            .remove(KEY_TOKEN)
+            .remove(KEY_USER_ID)
+            .remove(KEY_FIRST_LOGIN_TIME)
+            .apply();
     }
 }
 

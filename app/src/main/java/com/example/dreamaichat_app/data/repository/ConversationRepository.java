@@ -46,7 +46,8 @@ public class ConversationRepository {
                 conversation.messageCount,
                 conversation.lastMessagePreview,
                 conversation.lastMessageTime,
-                conversation.updatedAt
+                conversation.updatedAt,
+                conversation.userId
             ));
     }
     
@@ -72,11 +73,11 @@ public class ConversationRepository {
     
     /**
      * 获取所有会话（用于GetConversationsUseCase）
-     * 注意：这个方法需要userId，暂时使用默认值1，实际应该从登录用户获取
+     * 注意：这个方法需要userId，暂时使用默认值-1，实际应该从登录用户获取
      */
-    public Single<List<ConversationEntity>> getAllConversations() {
-        // TODO: 从SharedPreferences或数据库获取当前登录用户ID
-        return getConversationsByUserId(1L);
+    public Single<List<ConversationEntity>> getAllConversations(Long userId) {
+        // 使用传入的userId，而不是硬编码的默认值
+        return getConversationsByUserId(userId);
     }
     
     /**

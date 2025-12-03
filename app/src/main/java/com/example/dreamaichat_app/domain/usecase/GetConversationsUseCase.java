@@ -25,16 +25,16 @@ public class GetConversationsUseCase {
     /**
      * 获取所有会话
      */
-    public Single<List<ConversationEntity>> execute() {
-        return conversationRepository.getAllConversations()
+    public Single<List<ConversationEntity>> execute(Long userId) {
+        return conversationRepository.getAllConversations(userId)
             .subscribeOn(Schedulers.io());
     }
     
     /**
      * 获取所有会话（Flowable版本，用于响应式更新）
      */
-    public Flowable<List<ConversationEntity>> executeFlowable() {
-        return conversationRepository.getAllConversations()
+    public Flowable<List<ConversationEntity>> executeFlowable(Long userId) {
+        return conversationRepository.getAllConversations(userId)
             .toFlowable()
             .subscribeOn(Schedulers.io());
     }

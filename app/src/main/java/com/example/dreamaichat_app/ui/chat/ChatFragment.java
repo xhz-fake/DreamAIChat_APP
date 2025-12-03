@@ -98,6 +98,15 @@ public class ChatFragment extends Fragment implements ChatViewModel.PromptCallba
                 android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_SHORT).show();
             }
         });
+
+        // 观察待处理的 prompt，自动填入输入框
+        viewModel.getPendingPrompt().observe(getViewLifecycleOwner(), prompt -> {
+            if (!TextUtils.isEmpty(prompt)) {
+                binding.etMessageInput.setText(prompt);
+                binding.etMessageInput.setSelection(prompt.length());
+                viewModel.clearPendingPrompt();
+            }
+        });
     }
 
     private void renderQuickActions(List<QuickAction> actions) {

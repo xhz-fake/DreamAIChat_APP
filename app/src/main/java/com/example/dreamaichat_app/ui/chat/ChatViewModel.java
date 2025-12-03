@@ -64,6 +64,7 @@ public class ChatViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> isGenerating = new MutableLiveData<>(false);
     private final MutableLiveData<List<QuickAction>> quickActions = new MutableLiveData<>(buildDefaultQuickActions());
     private final MutableLiveData<String> toastEvent = new MutableLiveData<>();
+    private final MutableLiveData<String> pendingPrompt = new MutableLiveData<>();
 
     private final ApiService apiService;
     private final SessionManager sessionManager;
@@ -106,6 +107,14 @@ public class ChatViewModel extends AndroidViewModel {
 
     public LiveData<String> getToastEvent() {
         return toastEvent;
+    }
+
+    public LiveData<String> getPendingPrompt() {
+        return pendingPrompt;
+    }
+
+    public void clearPendingPrompt() {
+        pendingPrompt.setValue(null);
     }
 
     public List<ModelOption> getAvailableModels() {
@@ -212,6 +221,9 @@ public class ChatViewModel extends AndroidViewModel {
     public void applyQuickPrompt(QuickAction action, PromptCallback callback) {
         if (callback != null) {
             callback.onQuickPrompt(action.getPrompt());
+        } else {
+            // 如果没有回调，存储 prompt 供后续使用
+            pendingPrompt.setValue(action.getPrompt());
         }
     }
 

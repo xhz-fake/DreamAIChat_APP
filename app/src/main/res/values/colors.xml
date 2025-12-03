@@ -23,4 +23,6 @@
     <color name="success">#4CAF50</color>
     <color name="error">#F44336</color>
     <color name="warning">#FF9800</color>
+    <!-- 兼容旧资源引用的次要色，指向浅主色，避免 @color/secondary 缺失导致构建失败 -->
+    <color name="secondary">@color/primary_light</color>
 </resources>

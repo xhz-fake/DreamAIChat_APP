@@ -1,5 +1,6 @@
 package com.example.dreamaichat_app.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,10 +15,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dreamaichat_app.R;
+import com.example.dreamaichat_app.data.local.SessionManager;
 import com.example.dreamaichat_app.ui.chat.ChatFragment;
 import com.example.dreamaichat_app.ui.chat.ChatViewModel;
 import com.example.dreamaichat_app.ui.history.HistoryFragment;
 import com.example.dreamaichat_app.ui.history.HistoryViewModel;
+import com.example.dreamaichat_app.ui.login.LoginActivity;
 import com.example.dreamaichat_app.ui.profile.ProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private final Fragment chatFragment = new ChatFragment();
     private final Fragment historyFragment = new HistoryFragment();
     private final Fragment profileFragment = new ProfileFragment();
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private void initViewModels() {
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
         historyViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
+        sessionManager = new SessionManager(this);
     }
 
     private void setupToolbar() {
@@ -101,11 +106,20 @@ public class MainActivity extends AppCompatActivity {
     private void handleDrawerAction(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_templates) {
-            Toast.makeText(this, getString(R.string.toast_template_center), Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.nav_routing) {
-            Toast.makeText(this, getString(R.string.toast_routing_dev), Toast.LENGTH_SHORT).show();
+            showFragment(new com.example.dreamaichat_app.ui.template.TemplateSelectionFragment());
         } else if (id == R.id.nav_graph) {
-            Toast.makeText(this, getString(R.string.toast_graph_dev), Toast.LENGTH_SHORT).show();
+            showFragment(new com.example.dreamaichat_app.ui.graph.ConversationGraphFragment());
+        } else if (id == R.id.nav_settings) {
+            // 打开“我的”页并让用户在其中进入设置
+            showFragment(profileFragment);
+        } else if (id == R.id.nav_logout) {
+            // 清理会话并返回登录页
+            if (sessionManager != null) {
+                sessionManager.clear();
+            }
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
     }
 
@@ -151,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
             showFragment(chatFragment);
             return true;
         } else if (item.getItemId() == R.id.action_settings) {
-            Toast.makeText(this, R.string.settings, Toast.LENGTH_SHORT).show();
+            showFragment(profileFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

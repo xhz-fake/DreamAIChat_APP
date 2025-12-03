@@ -144,5 +144,11 @@ public interface ConversationDao {
                                        String lastMessagePreview,
                                        Long lastMessageTime,
                                        Long updatedAt);
+
+    /**
+     * 同步查询：获取某个用户的所有会话（用于统计）
+     */
+    @Query("SELECT * FROM conversations WHERE userId = :userId")
+    List<ConversationEntity> getAllForUserSync(Long userId);
 }
 

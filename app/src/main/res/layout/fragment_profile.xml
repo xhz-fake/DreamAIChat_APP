@@ -30,7 +30,8 @@
                     android:id="@+id/iv_avatar"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@android:drawable/ic_menu_view"
+                    android:src="@drawable/ic_user_avatar"
+                    android:scaleType="centerCrop"
                     android:layout_marginBottom="12dp" />
 
                 <TextView
@@ -42,30 +43,7 @@
                     android:textStyle="bold"
                     android:layout_marginBottom="8dp" />
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginBottom="12dp">
-
-                    <TextView
-                        android:id="@+id/tv_member_type"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/profile_free_member"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_secondary"
-                        android:layout_marginEnd="8dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_upgrade"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="38dp"
-                        android:text="@string/profile_upgrade"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                <!-- 原“免费版”&“升级”区域已移除，后续如需会员功能可在此重新设计 -->
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_edit_profile"
@@ -202,44 +180,16 @@
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📝"
-                        android:textSize="32sp"
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_nav_templates"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="对话模板"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- 智能路由 -->
-                <LinearLayout
-                    android:id="@+id/btn_routing"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🔄"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="智能路由"
                         android:textSize="14sp" />
                 </LinearLayout>
 
@@ -256,44 +206,16 @@
                     android:focusable="true"
                     android:background="?attr/selectableItemBackground">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🕸️"
-                        android:textSize="32sp"
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_nav_graph"
                         android:layout_marginBottom="8dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="对话图谱"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- 我的收藏 -->
-                <LinearLayout
-                    android:id="@+id/btn_favorites"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:padding="16dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="⭐"
-                        android:textSize="32sp"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="我的收藏"
                         android:textSize="14sp" />
                 </LinearLayout>
             </GridLayout>

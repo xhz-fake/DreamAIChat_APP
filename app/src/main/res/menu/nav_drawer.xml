@@ -7,11 +7,6 @@
             android:title="对话模板" />
 
         <item
-            android:id="@+id/nav_routing"
-            android:icon="@drawable/ic_nav_routing"
-            android:title="智能路由" />
-
-        <item
             android:id="@+id/nav_graph"
             android:icon="@drawable/ic_nav_graph"
             android:title="对话图谱" />

@@ -131,6 +131,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginEnd="4dp"
             android:hint="@string/chat_input_hint">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -142,29 +143,29 @@
                 android:inputType="textCapSentences|textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/btnImage"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/chat_attach_image"
-            android:minWidth="0dp"
-            android:paddingHorizontal="12dp"
-            app:icon="@drawable/ic_attach"
-            app:iconGravity="textStart"
-            app:iconPadding="0dp"
-            app:iconTint="@color/text_primary"
-            android:text="@string/chat_attach_image"
-            android:textAllCaps="false" />
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_attach"
+            app:tint="@color/text_primary" />
 
-        <com.google.android.material.button.MaterialButton
+        <ImageButton
             android:id="@+id/btnSend"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="@string/send" />
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/send"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_send"
+            app:tint="@color/primary" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -125,5 +125,11 @@ public interface MessageDao {
      */
     @Query("SELECT COUNT(*) FROM messages WHERE conversationId = :conversationId")
     Single<Integer> getMessageCount(Long conversationId);
+
+    /**
+     * 同步查询：获取某个用户的所有消息（用于统计）
+     */
+    @Query("SELECT m.* FROM messages m INNER JOIN conversations c ON m.conversationId = c.id WHERE c.userId = :userId")
+    List<MessageEntity> getAllForUserSync(Long userId);
 }
 

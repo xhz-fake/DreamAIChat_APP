@@ -31,8 +31,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText etPassword;
     private MaterialButton btnLogin;
     private TextView btnRegister;
-    private MaterialButton btnWeChatLogin;
-    private MaterialButton btnAppleLogin;
     private ProgressBar progressBar;
     
     private LoginViewModel viewModel;
@@ -55,8 +53,6 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.et_password);
         btnLogin = findViewById(R.id.btn_login);
         btnRegister = findViewById(R.id.btn_register);
-        btnWeChatLogin = findViewById(R.id.btn_wechat_login);
-        btnAppleLogin = findViewById(R.id.btn_apple_login);
         progressBar = findViewById(R.id.progress_bar);
     }
     
@@ -69,8 +65,6 @@ public class LoginActivity extends AppCompatActivity {
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> handleLogin());
         btnRegister.setOnClickListener(v -> handleRegister());
-        btnWeChatLogin.setOnClickListener(v -> handleWeChatLogin());
-        btnAppleLogin.setOnClickListener(v -> handleAppleLogin());
     }
     
     private void observeState() {
@@ -120,17 +114,10 @@ public class LoginActivity extends AppCompatActivity {
         viewModel.processIntent(new LoginIntent.Register(account, password, account));
     }
     
-    private void handleWeChatLogin() {
-        viewModel.processIntent(new LoginIntent.WeChatLogin());
-    }
-    
-    private void handleAppleLogin() {
-        viewModel.processIntent(new LoginIntent.AppleLogin());
-    }
-    
     private void handleLoginSuccess(String token, Long userId) {
         if (token != null && userId != null) {
             sessionManager.saveSession(token, userId);
+            sessionManager.setAccount(etAccount.getText() != null ? etAccount.getText().toString().trim() : null);
         }
         // 跳转到主界面
         Intent intent = new Intent(this, MainActivity.class);

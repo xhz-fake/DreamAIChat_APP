@@ -40,7 +40,26 @@
     <string name="model_picker_title">选择模型</string>
     
     <!-- 个人中心 -->
-    <string name="profile_free_member">免费版</string>
-    <string name="profile_upgrade">升级</string>
     <string name="profile_edit">编辑资料</string>
+    <string name="profile_edit_title">编辑资料</string>
+    <string name="account_phone">账号</string>
+    <string name="profile_username_hint">请输入昵称</string>
+    <string name="profile_save">保存</string>
+    <string name="profile_save_success">已保存个人资料</string>
+    <string name="account_delete">注销账号</string>
+    <string name="account_delete_title">注销账号</string>
+    <string name="account_delete_message">是否注销账号？该操作不可逆转！</string>
+
+    <!-- 侧边栏与功能页标题 -->
+    <string name="nav_templates_title">对话模板</string>
+    <string name="nav_routing_title">智能路由</string>
+    <string name="nav_graph_title">对话图谱</string>
+
+    <!-- 模型路由模式文案 -->
+    <string name="routing_auto">自动模式（系统智能选择模型）</string>
+    <string name="routing_speed">速度优先（响应更快）</string>
+    <string name="routing_quality">质量优先（更高回答质量）</string>
+
+    <!-- 对话图谱占位说明 -->
+    <string name="graph_placeholder">对话图谱功能开发中，后续将在此展示可视化关系图。</string>
 </resources>

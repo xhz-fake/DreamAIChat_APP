@@ -1,6 +1,6 @@
 # DreamAIChat · AI指令工程实践报告
 
-> 版本：2025-12-03  
+> 最新版本：2025-12-04  
 > 主导者：邢浩哲（产品 Owner / Prompt Engineer）  
 > 协作伙伴：GPT-5.1 Codex（AI Coding Agent）
 
@@ -16,6 +16,8 @@
 核心原则：**“我负责定义问题与验收标准，AI 负责实现并解释实现。”**
 
 ---
+
+
 
 ## 2. Prompt 工程体系化建设
 
@@ -39,6 +41,8 @@
 
 ---
 
+
+
 ## 3. 代表性 Prompt 案例（Android/Kotlin 方向）
 
 | 功能场景 | Prompt 精要（我发出的指令） | AI 产出 | 迭代要点 |
@@ -47,10 +51,14 @@
 | 对话图谱回填 | “ConversationGraphFragment 点击后必须加载 MessageRepository，拼接‘用户/AI’标签文本后写回 pendingPrompt，并自动返回 ChatFragment” | Fragment + ViewModel 改造完成 | 我追问“摘要为何仍是‘暂无摘要’”，AI 复查后加入完整拼接逻辑 |
 | 退出登录历史丢失 | “请找出退出登录后历史记录丢失的根因，禁止删库，定位到仓库层级并解释修复方案” | 定位到 `insertOrUpdateUserWithId` 的 REPLACE，引申级联删除 | 我要求“写入故障排查文档”，AI 顺带补文档与更新日志 |
 | LLM 联网诊断 | “后端需要一个 /api/diagnostics/providers 接口，自检 baseUrl/API Key/DNS/TCP，部署指南追加排查章节” | 新 Controller + 文档 §14 | 在 Prompt 中明确“输出示例 + 排查表”，最终文档涵盖表格 & 建议顺序 |
+| 快捷芯片居中 | “删除‘结构分析’芯片后，剩余 3 个请居中均匀分布，必要时改父布局” | ChipGroup 包裹 LinearLayout，改为 wrap_content + center | 先试直接加 gravity 仍偏左，追加“如不行改父布局”后解决 |
+| 顶部栏微调 | “菜单/设置/新对话这一栏往下移动一点；偏下后再往上移一点” | 通过 marginTop 多次微调到 12dp | 通过多轮对比截图确认最佳视觉位置 |
 
 > **说明**：我从不直接让 AI “自由发挥”，而是把资源路径、命名约定和验收格式写进 Prompt，形成可复用的“工程化话术”。
 
 ---
+
+
 
 ## 4. Prompt 迭代与质控实录
 
@@ -71,6 +79,8 @@
 
 ---
 
+
+
 ## 5. Prompt 工程实践总结
 
 1. **以我为主的指令风格**：每一条 Prompt 都强调“我是 Owner”，AI 只做执行与解释。  
@@ -81,7 +91,9 @@
 
 ---
 
+
+
 ## 6. 结语
 
-在 DreamAIChat 项目中，我通过“工程化、逻辑化、标准化”的 Prompt 体系，让 AI 成为真正可信的协作者。未来我也会持续迭代这套话术与流程，将其沉淀为团队可共享的资产。
+在 DreamAIChat 项目中，我通过“工程化、逻辑化、标准化”的 Prompt 体系，让 AI 成为真正可信的协作者。未来我也会持续迭代这套话术与流程，将其沉淀为我后续继续在项目中复盘回顾的资产。
 

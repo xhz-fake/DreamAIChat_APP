@@ -376,8 +376,7 @@ public class ChatViewModel extends AndroidViewModel {
         return Arrays.asList(
             new QuickAction("summarize", "总结内容", "请用要点总结上文"),
             new QuickAction("polish", "润色文案", "请帮我润色，使其适合商务场景"),
-            new QuickAction("translate", "翻译英文", "请准确翻译为英文并保留专有名词"),
-            new QuickAction("analyze", "结构分析", "请从要点、风险、建议三个角度分析")
+            new QuickAction("translate", "翻译英文", "请准确翻译为英文并保留专有名词")
         );
     }
 

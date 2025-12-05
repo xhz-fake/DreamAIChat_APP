@@ -32,6 +32,7 @@ public class RetrofitClient {
      * 注意：如果你还没有后端服务器，可以先使用模拟数据，或者使用公共测试 API
      */
     private static final String BASE_URL = "http://115.190.181.193:8082/";
+    //private static final String BASE_URL = "http://10.0.2.2:8082/";
     
     private static RetrofitClient instance;
     private final ApiService apiService;

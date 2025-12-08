@@ -24,15 +24,19 @@ public class RetrofitClient {
      * 2. 必须以 http:// 或 https:// 开头
      * 3. 地址末尾必须有斜杠 "/"
      * 
-     * 示例：
+     * 例：
      * - 本地开发：http://localhost:8081/ 或 http://10.0.2.2:8081/ (Android模拟器)
      * - 测试服务器：https://test-api.example.com/
      * - 生产服务器：https://api.example.com/
      * 
      * 注意：如果你还没有后端服务器，可以先使用模拟数据，或者使用公共测试 API
      */
-    private static final String BASE_URL = "http://115.190.181.193:8082/";
-    //private static final String BASE_URL = "http://10.0.2.2:8082/";
+
+    // 1.如果您通过下载安装包(邢浩哲-chatbot.apk)使用APP, 请联系我(邢浩哲)开启火山云服务器后直接使用即可.
+    //private static final String BASE_URL = "http://115.190.181.193:8082/";
+
+    // 2.如果您拉完代码并在本地模拟器上测试APP, 则无需动此行代码 ,仅需配置好API-key即可正常使用
+    private static final String BASE_URL = "http://10.0.2.2:8082/";
     
     private static RetrofitClient instance;
     private final ApiService apiService;

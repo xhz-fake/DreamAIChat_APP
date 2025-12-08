@@ -19,10 +19,13 @@ DreamAIChat 是一款 Android 端 AI 对话应用，支持：
 
 ---
 
-## 目录结构
+
+
+## 项目目录结构
 
 ```text
-DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
+DreamAIChat_APP/# Android 前端工程（Android Studio 打开本目录）
+│----------------(核心代码部分)---------------------------
 ├─ app/                         
 │  ├─ src/main/java/com/example/dreamaichat_app/
 │  │  ├─ ui/                    # 界面层（Login, Chat, History, Profile 等）
@@ -41,16 +44,23 @@ DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
 │     ├─ application.yml        # 默认配置（端口、数据源、模型 provider 配置）
 │     └─ application-local.yml  # 本地开发时的 API Key（已忽略提交）
 │
-├─ 核心技术文档/                  # 架构设计白皮书、技术选型、部署指南、API 说明等
+│----------------(文档产出部分)---------------------------
+├─ README.md                    # 项目导航与梗概
+├─ 核心技术文档/                  # 部署指南、架构设计书、技术选型、技术最佳实践、API 说明等
 ├─ 产品思维文档/                  # 界面设计白皮书、产品分析评估等
-└─ vibe_coding实践文档/          # AI 协作实践、故障排查、Prompt 工程报告
+├─ vibe_coding实践文档/          # AI 协作实践、故障排查、Prompt 工程报告
+├─ 精彩快照文档/                  # 代码亮点走查、核心创新点清单
+└─ 个人总结文档/					# 个人回顾总结、项目回顾总结
+
 ```
 
 ---
 
+
+
 ## 运行方式（必读）
 
-#### 部署时强烈建议阅读: --  /核心技术文档/部署指南.md
+#### 部署时强烈建议阅读: --  邢浩哲 - 即梦训练营结课报告(飞书)/核心技术文档/部署指南.md
 
 ### 1. 启动后端服务（Spring Boot）
 
@@ -86,7 +96,21 @@ DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
 
 ### 2. 运行 Android 应用（模拟器 / 真机）
 
-> 前提：已在本地成功启动后端，并确认端口与 `RetrofitClient` 中的 `BASE_URL` 一致。
+> 1. 前提：已在本地成功启动后端，并确认端口与 `RetrofitClient` 中的 `BASE_URL` 一致。
+>
+> 2. 重要提示:  Android-studio 以下路径中:
+>
+> "DreamAIChat_APP\app\src\main\java\com\example\dreamaichat_app\data\remote\RetrofitClient.java"
+>
+> ```
+> // 1.如果您通过下载安装包(邢浩哲-chatbot.apk)使用APP, 请联系我(邢浩哲)开启火山云服务器后直接使用即可.(无需动下方代码)
+> //private static final String BASE_URL = "http://115.190.181.193:8082/";
+> 
+> // 2.如果您拉完代码并在本地模拟器上测试APP, 也无需动下行代码, 仅需配置好API-key即可正常使用
+>    private static final String BASE_URL = "http://10.0.2.2:8082/";
+> ```
+>
+> 3. API-key 的绝对路径: "DreamAIChat_APP\DreamAIChat_backend\src\main\resources\application.yml"
 
 1. **使用 Android Studio 打开 `DreamAIChat_APP` 根目录**；等待 Gradle 同步完成。  
 2. **确认后端地址**
@@ -103,7 +127,8 @@ DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
 3. **运行到模拟器**
    - 在 Android Studio 选择任意模拟器（API 30+），点击“Run”运行 `app` 模块；  
    - 登录/注册后即可开始与模型对话。
-4. **导出调试 APK（供老师安装在手机上）**
+4. **导出调试 APK**
+   
    - 菜单：`Build` → `Build Bundle(s) / APK(s)` → `Build APK(s)`；  
    - 构建完成后，IDE 右下角会提示“APK generated”，点击“Locate”可打开生成目录；  
    - 默认生成文件类似：`app/build/outputs/apk/debug/app-debug.apk`；  
@@ -113,6 +138,8 @@ DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
 > 如果后端未配置真实 API Key，应用仍可运行，但模型回复为“演示模式”，该状态在 UI 上会有明确提示。
 
 ---
+
+
 
 ## 技术栈与特性
 
@@ -130,6 +157,8 @@ DreamAIChat_APP/				# Android 前端工程（Android Studio 打开本目录）
   - 模型路由：`ModelRouterService` 聚合 DeepSeek / 豆包等大模型，支持文本 + 图像输入  
 
 ---
+
+
 
 ## 更多文档
 

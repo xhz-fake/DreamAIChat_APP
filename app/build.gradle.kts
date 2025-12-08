@@ -57,7 +57,8 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.retrofit.rxjava3)
     implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
+    // 显式引入日志拦截器，解决 HttpLoggingInterceptor 无法识别的问题
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
     
     // 异步处理
     implementation(libs.rxjava)
